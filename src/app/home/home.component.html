@@ -1,0 +1,361 @@
+<p-progressSpinner *ngIf="blockUI"></p-progressSpinner>
+<p-autoComplete
+  [(ngModel)]="selectedStrike"
+  [suggestions]="suggestions"
+  (completeMethod)="search($event)"
+  field="dname"
+  (onSelect)="selectedStrikeEvent($event)"
+>
+</p-autoComplete>
+<p-toast></p-toast>
+<p-table
+  #dt
+  [value]="collectionofStrikes"
+  [(selection)]="selectedCustomers"
+  dataKey="id"
+  styleClass="p-datatable-customers"
+  [loading]="loading"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      <th style="width: 3rem"></th>
+      <th pSortableColumn="name">Strick</th>
+      <th>Name</th>
+      <th>Option</th>
+
+      <th style="width: 8rem"></th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-strike let-expanded="expanded">
+    <tr class="p-selectable-row">
+      <td>
+        <button
+          type="button"
+          pButton
+          pRipple
+          [pRowToggler]="strike"
+          class="p-button-text p-button-rounded p-button-plain"
+          [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+        ></button>
+      </td>
+      <td>
+        <p-tableCheckbox [value]="strike"></p-tableCheckbox>
+      </td>
+
+      <td>{{ strike.dname }}</td>
+      <td>{{ strike?.tsym }}</td>
+      <td>{{ strike?.optt }}</td>
+      <td>
+        <div class="flex">
+          <button
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-danger mr-2"
+            (click)="deleteStrike(strike)"
+          ></button>
+
+          <!-- <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2 "
+                (click)="setTarget(strike)"></button> -->
+
+          <button
+            pButton
+            pRipple
+            icon="pi pi-play"
+            class="p-button-rounded p-button-danger mr-2"
+            (click)="startAll_Algo_UnderthisStrike(strike)"
+          ></button>
+
+          <button
+            pButton
+            pRipple
+            icon="pi pi-plus"
+            class="p-button-rounded p-button-success"
+            (click)="cloneform(strike)"
+          ></button>
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="8">No Strikes found.</td>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="rowexpansion" let-strike>
+    <tr>
+      <td colspan="7">
+        <div class="p-3">
+          <p-table [value]="strike.cloneForm" dataKey="id">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Unique ID</th>
+                <th pSortableColumn="name">Strick</th>
+                <th>Name</th>
+                <th>Option</th>
+                <th>B1</th>
+                <th>T1</th>
+                <th>SL</th>
+                <th style="width: 8rem"></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-cloneitem>
+              <tr class="p-selectable-row">
+                <td>
+                  <span style="font-weight: bold;"> {{ cloneitem.id }}</span>
+                </td>
+                <td>
+                  {{ cloneitem.dname }}
+                  <span style="font-weight: bold;">( {{ cloneitem.id }})</span>
+                </td>
+                <td>
+                  {{ cloneitem?.tsym }}
+                  <span style="font-weight: bold;">( {{ cloneitem.id }})</span>
+                </td>
+                <td>{{ cloneitem?.optt }}</td>
+                <td>{{ cloneitem?.b1 }}</td>
+                <td>{{ cloneitem?.t1 }}</td>
+                <td>{{ cloneitem?.sl }}</td>
+                <td>
+                  <div class="flex">
+                    <button
+                      pButton
+                      pRipple
+                      icon="pi pi-chart-bar"
+                      class="p-button-rounded p-button-success mr-2"
+                      (click)="getReports(2, cloneitem)"
+                    ></button>
+
+                    <!-- (click)="deleteStrikePricelevels(cloneitem)" -->
+                    <button
+                      pButton
+                      pRipple
+                      icon="pi pi-trash"
+                      class="p-button-rounded p-button-danger mr-2"
+                      (click)="deleteStrikePricelevels(cloneitem)"
+                    ></button>
+
+                    <button
+                      pButton
+                      pRipple
+                      icon="pi pi-pencil"
+                      class="p-button-rounded p-button-primary mr-2"
+                      (click)="setTargetofClone(cloneitem)"
+                    ></button>
+
+                    <button
+                      pButton
+                      pRipple
+                      icon="pi pi-play"
+                      class="p-button-rounded p-button-success mr-2"
+                      (click)="getChartDataByMinNew(cloneitem?.token, cloneitem?.id)"
+                    ></button>
+                    <button
+                      pButton
+                      pRipple
+                      icon="pi pi-pause"
+                      class="p-button-rounded p-button-warning mr-2"
+                      (click)="pauseAlgo(cloneitem)"
+                    ></button>
+
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="6">There are no order for this product yet.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<p-dialog
+  [(visible)]="productDialog"
+  [style]="{ width: '450px' }"
+  header="Set Target and SL"
+  [modal]="true"
+  styleClass="p-fluid"
+>
+  <ng-template pTemplate="content">
+    <form [formGroup]="priceLevelsForm">
+      <div class="field">
+        <label for="name" style="font-weight: bold;">{{
+          selectedStrikeLevel.dname
+        }}</label>
+      </div>
+
+      <div class="p-field p-col-12 p-md-4">
+        <label for="range">Date Range</label>
+        <p-calendar
+          formControlName="rangeDates"
+          [showTime]="true"
+          selectionMode="range"
+          [readonlyInput]="true"
+          [touchUI]="true"
+          [readonlyInput]="true"
+          appendTo="body"
+          inputId="range"
+        ></p-calendar>
+      </div>
+
+      <div class="field">
+        <label for="description">
+          <h3>Notes</h3>
+          (take nots about how market is will activate this stragery or
+          not)</label
+        >
+        <textarea
+          id="address"
+          type="text"
+          rows="4"
+          formControlName="notes"
+          class="
+            text-base text-color
+            surface-overlay
+            p-2
+            border-1 border-solid
+            surface-border
+            border-round
+            appearance-none
+            outline-none
+            focus:border-primary
+            w-full
+          "
+        ></textarea>
+      </div>
+
+      <div class="card">
+        <h5>Buy and SL Targets</h5>
+        <div class="formgrid grid">
+          <div class="field col">
+            <label for="strike">Strike </label>
+            <input
+              id="strike"
+              type="text"
+              [readOnly]="true"
+              formControlName="token"
+              class="
+                text-base text-color
+                surface-overlay
+                p-2
+                border-1 border-solid
+                surface-border
+                border-round
+                appearance-none
+                outline-none
+                focus:border-primary
+                w-full
+              "
+            />
+          </div>
+          <div class="field col">
+            <label for="buy1">Option </label>
+            <input
+              id="buy1"
+              type="text"
+              [readOnly]="true"
+              [value]="selectedStrikeLevel?.optt"
+              class="
+                text-base text-color
+                surface-overlay
+                p-2
+                border-1 border-solid
+                surface-border
+                border-round
+                appearance-none
+                outline-none
+                focus:border-primary
+                w-full
+              "
+            />
+          </div>
+        </div>
+        <div class="field col">
+          <label for="buy1">Buy 1 </label>
+          <p-inputNumber
+            id="buy1"
+            type="text"
+            formControlName="B1"
+            class="
+              text-base text-color
+              surface-overlay
+              p-2
+              appearance-none
+              outline-none
+              focus:border-primary
+              w-full
+            "
+          ></p-inputNumber>
+        </div>
+        <div class="field col">
+          <label for="buy1">T1 </label>
+          <p-inputNumber
+            id="buy1"
+            type="text"
+            formControlName="T1"
+            class="
+              text-base text-color
+              surface-overlay
+              p-2
+              appearance-none
+              outline-none
+              focus:border-primary
+              w-full
+            "
+          ></p-inputNumber>
+        </div>
+        <div class="field col">
+          <label for="buy1">SL</label>
+          <p-inputNumber
+            id="buy1"
+            type="text"
+            formControlName="SL"
+            class="
+              text-base text-color
+              surface-overlay
+              p-2
+              appearance-none
+              outline-none
+              focus:border-primary
+              w-full
+            "
+          ></p-inputNumber>
+        </div>
+      </div>
+    </form>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      pRipple
+      label="Cancel"
+      icon="pi pi-times"
+      class="p-button-text"
+      (click)="hideDialog()"
+    ></button>
+    <button
+      [disabled]="disableSave"
+      pButton
+      pRipple
+      label="Save"
+      icon="pi pi-check"
+      class="p-button-text"
+      (click)="saveLevels()"
+    ></button>
+    <button
+      [disabled]="!disableSave"
+      pButton
+      pRipple
+      label="Modify"
+      icon="pi pi-check"
+      class="p-button-text"
+      (click)="modifyLevels()"
+    ></button>
+  </ng-template>
+</p-dialog>
