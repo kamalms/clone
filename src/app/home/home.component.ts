@@ -704,29 +704,28 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
   }
   startAlgo(token: any, strategy_id: number) {
-    const apiInterval = 8000; // 40 seconds in milliseconds
+    const apiInterval = 30000; // 40 seconds in milliseconds
     console.log('new logic check start api call on parent strike click', token)
 
     this.parentStrikeInterval$ = interval(apiInterval).pipe(
       share(), // Use the share operator to make the observable shared
       switchMap(() =>
-          // this.getStrikeDataByChart(token)
+           this.getStrikeDataByChart(token)
 
-         this.customerService.get43800CEdata(token)
+         //this.customerService.get43800CEdata(token)
       )
     );
     if (this.parentStrikeInterval$) {
       let currentIndex = 0;
       this.parentStrikeInterval$.subscribe((data: any) => {
-        let reverseArrayOrder = data?.scriptData.reverse();
+        // let reverseArrayOrder = data?.scriptData.reverse();
        // let reverseArrayOrder = data?.reverse();
-         console.log('Next: ', reverseArrayOrder);
+      //   console.log('Next: ', reverseArrayOrder);
         // this.eachchildvalue.filter((strategyid: any) => {
         // now again we don't need to filter on array now we have stragety id which
         //  values only need to checked with response price  strategy_id
       //  console.log('on real check' , this.eachchildvalue);
         this.dataService.b1$.subscribe((updatedB1value : any) => {
-          console.log('updated b1 value' , updatedB1value); 
             this.eachchildvalue.forEach((strategyid:any) => {
                if (strategyid.strategy_id == updatedB1value?.strategy_id ) {
                 strategyid.b1 = updatedB1value?.B1;
@@ -736,7 +735,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
                }
             })
               });
-              console.log('array update' , this.eachchildvalue)
 
         let eachstratey = this.eachchildvalue.filter((strategyObject: any) => {
           if (strategyObject?.strategy_id == strategy_id) {
@@ -759,22 +757,22 @@ export class HomeComponent implements OnInit, AfterViewInit {
         // this.handlePlaceOrder(data[0], B1, T1, price);
 
         // dont delete below one will used for fake api call response
-        var THIS = this;
-        function getValueEveryMinute(outerthis: any) {
-          // Check if we have reached the end of the array
-          if (currentIndex >= reverseArrayOrder?.length) {
-            console.log('end here', outerthis);
-            // outerthis?.parentStrikeInterval$?.unsubscribe();
-            // currentIndex = 0; // Reset to the beginning of the array
-          }
-          const objectToReturn = reverseArrayOrder?.[currentIndex];
-          currentIndex++;
-          return objectToReturn;
-        }
+        // var THIS = this;
+        // function getValueEveryMinute(outerthis: any) {
+        //   // Check if we have reached the end of the array
+        //   if (currentIndex >= reverseArrayOrder?.length) {
+        //     console.log('end here', outerthis);
+        //     // outerthis?.parentStrikeInterval$?.unsubscribe();
+        //     // currentIndex = 0; // Reset to the beginning of the array
+        //   }
+        //   const objectToReturn = reverseArrayOrder?.[currentIndex];
+        //   currentIndex++;
+        //   return objectToReturn;
+        // }
         // this.filterByDate(childCloneItemValues?.strikeData, childCloneItemValues.strategyobject?.startdate, childCloneItemValues.strategyobject?.enddate)
-       let objectdata = getValueEveryMinute(THIS);
-       console.log('objectdata', objectdata)
-      //  let objectdata = data[0];
+      // let objectdata = getValueEveryMinute(THIS);
+        let objectdata = data[0];
+        console.log('objectdata', objectdata)
         this.handlePlaceOrder(objectdata,
           eachstratey[0] , token);
       }
@@ -798,7 +796,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
      let buyObjects : any = {}
 
       // calculate different between closePrice and B1
-      console.log('different' , Math.abs(closePrice - B1))
       if (Math.abs(closePrice - B1) <= 5 && closePrice < B1) {
         buyObjects.order_type = true;
         buyObjects.time_happened = object?.time;
