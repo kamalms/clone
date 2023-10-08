@@ -72,6 +72,7 @@ const routes: Routes = [
     RouterModule.forRoot(routes),
     TableModule,
     ButtonModule,
+    DropdownModule
   ],
   providers: [],
   bootstrap: [AppComponent],

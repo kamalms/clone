@@ -98,6 +98,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   eachchildvalue: any[] = [];
   algoinitiaedTokens: any[] = [];
+  cities!: any[];
+  selectedCity: any;
+
   constructor(
     private dataService: DatasharedService,
     private elementRef: ElementRef,
@@ -108,7 +111,15 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private httpClient: HttpClient,
     private flattradeService: CommonService,
     private primengConfig: PrimeNGConfig
-  ) { }
+  ) { 
+    this.cities = [
+      {name: '1 M', code: 'NY'},
+      {name: '2 M', code: 'RM'},
+      {name: '3M', code: 'LDN'},
+      {name: '5M', code: 'IST'},
+      {name: '30 sec', code: 'PRS'}
+  ];
+  }
 
   // search the script name
   search(event: AutoCompleteCompleteEvent) {
@@ -692,7 +703,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       })
     }
   }
-  getChartDataByMinNew(token: any, strategy_id: number) {
+  startAlgo(token: any, strategy_id: number) {
     const apiInterval = 8000; // 40 seconds in milliseconds
     console.log('new logic check start api call on parent strike click', token)
 

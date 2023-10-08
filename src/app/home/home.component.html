@@ -7,6 +7,7 @@
   (onSelect)="selectedStrikeEvent($event)"
 >
 </p-autoComplete>
+<p-dropdown [options]="cities" [(ngModel)]="selectedCity" optionLabel="name"></p-dropdown>
 <p-toast></p-toast>
 <p-table
   #dt
@@ -149,7 +150,7 @@
                       pRipple
                       icon="pi pi-play"
                       class="p-button-rounded p-button-success mr-2"
-                      (click)="getChartDataByMinNew(cloneitem?.token, cloneitem?.id)"
+                      (click)="startAlgo(cloneitem?.token, cloneitem?.id)"
                     ></button>
                     <button
                       pButton
