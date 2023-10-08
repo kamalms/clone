@@ -1,1 +1,4 @@
 dist/angular-user-management/3rdpartylicenses.txt
+node_modules/
+node_modules
+.angular

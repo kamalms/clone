@@ -252,7 +252,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
   // edit form
 
   modifyLevels() {
-    console.log('Form Data:', this.priceLevelsForm.value);
     if (this.priceLevelsForm.valid) {
       const formData = this.priceLevelsForm.value;
       console.log('Form Data:', formData);
@@ -275,6 +274,21 @@ export class HomeComponent implements OnInit, AfterViewInit {
           strategy_id : formData?.token,
           strategyid : formData?.token
          }
+         // below we doing this for updating child array of ptable value
+         // because once form value changed or updated , changed values are not shown in UI 
+         // to resolve that below find index of main array index  ,
+         // then filter which child item value need to updated also formData container updated values
+         // so this we update front end 
+         const index = this.collectionofStrikes.findIndex(
+          (item) => item.token === this.selectedStrikeLevel.token
+        );
+        if (index !== -1) {
+          let needtoUpdatedStrategyValue = this.collectionofStrikes[index].cloneForm.
+             filter( ( eachStrategy : any)=> eachStrategy?.id == formData?.token);
+          needtoUpdatedStrategyValue[0].b1 = formData?.B1;
+          needtoUpdatedStrategyValue[0].t1 =formData?.T1;
+          needtoUpdatedStrategyValue[0].sl = formData?.SL;
+        }
          this.dataService.updateB1(updatedFormItem);
           if (data?.length > 0) {
           }
@@ -531,7 +545,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
               });
             });
-
+            // cloneForm is array created for child ptable list
             this.collectionofStrikes[index].cloneForm = cloneItemsofArray;
 
             this.showSuccess('info', 'Success', 'Strategy Added');
@@ -679,7 +693,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
   }
   getChartDataByMinNew(token: any, strategy_id: number) {
-    const apiInterval = 1000; // 40 seconds in milliseconds
+    const apiInterval = 8000; // 40 seconds in milliseconds
     console.log('new logic check start api call on parent strike click', token)
 
     this.parentStrikeInterval$ = interval(apiInterval).pipe(
@@ -751,13 +765,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
        console.log('objectdata', objectdata)
       //  let objectdata = data[0];
         this.handlePlaceOrder(objectdata,
-          eachstratey[0]);
+          eachstratey[0] , token);
       }
       );
     }
   }
   ArrayofObject: any[] = [];
-  handlePlaceOrder(object: any, strageryFormValues: any) {
+  handlePlaceOrder(object: any, strageryFormValues: any , strikeUniqueid : number) {
     let B1 = strageryFormValues?.b1;
     let T1 = strageryFormValues?.t1;
     let SL = parseFloat(strageryFormValues?.sl);
@@ -780,6 +794,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
         buyObjects.B1 = closePrice;
         buyObjects.strategy_id = strateguniqueid;
         strageryFormValues.buytriggered = true;
+
+        // main logic to place buy order 
         this.supabase
           .insertToBacktesting(buyObjects)
           .then((data: any) => {
@@ -792,7 +808,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
             }
           ).then((updatedToBackEnd:any) => {
             console.log('updatedToBackEnd' , updatedToBackEnd)
-          })
+          });
+          this.setDynamicAlert(`${strikeUniqueid} buying call` ,strikeUniqueid, closePrice);
       }
     } else {
 
@@ -830,6 +847,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
             .insertToBacktesting(sellObjects)
             .then((data: any) => {
             });
+
+            // dynamic alert set 
+            this.setDynamicAlert(`${strikeUniqueid} selling call alert` ,strikeUniqueid, highPrice);
         }
         // it mean b1 executed and sell also not executed sl also not triggered
         if (strageryFormValues.buytriggered && !strageryFormValues.selltriggered &&
@@ -873,6 +893,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
             .insertToBacktesting(sLObjects)
             .then((data: any) => {
             });
+
+            // SL trigger alert 
+            this.setDynamicAlert(`${strikeUniqueid} SL call alert` ,strikeUniqueid, highPrice);
             }
           
         }
@@ -937,10 +960,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
     );
     console.log('after range filter', selectedDateValues);
   }
-
-  buyLogic(closePrice: any, B1: any, strateguniqueid: any, object: any, b1t1objectwithtriggervalues: any) {
-
-  }
   // pause algo mean stop the trade running on this condition
   pause: boolean = false;
   pauseAlgo(token: string) {
@@ -949,60 +968,28 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.showSuccess('success', 'success', 'Algo Stopped');
   }
 
-
-  // Function to perform actions based on conditions
-  tradeDecision(buyCondition: any, sellCondition: any, stopLoss: any) {
-    // Get the current price (this can be from an external source)
-    let currentPrice = 110;
-
-    // Check conditions
-    if (currentPrice <= buyCondition) {
-      console.log('Buy the product.');
-      // Place buy order or execute buy logic here
-    } else if (currentPrice >= sellCondition) {
-      console.log('Sell the product.');
-      // Place sell order or execute sell logic here
-    } else if (currentPrice <= stopLoss) {
-      console.log('Book the loss.');
-      // Execute stop-loss logic here
-    } else {
-      console.log('No action needed at the moment.');
-    }
-  }
-  getChartDataByMin(price: any, startdate: any, enddate_: any, B1: any, T1: any) {
-    const apiInterval = 10000; // 40 seconds in milliseconds
-    console.log('check b1 price on different strike', B1, price?.token);
-    // this.parentStrikeInterval$.subscribe(( x : any) => console.log('Next: ', x));
-    // if( this.parentStrikeInterval$) {
-    //   this.parentStrikeInterval$.subscribe(( data : any) => {
-    //     console.log('Next: ', data)
-    //     this.handlePlaceOrder(data[0], B1, T1, price);
-    //    }
-    //   );
-    // }
-
-    // const observableInterval = interval(apiInterval)
-    //   .pipe(
-    //     switchMap(() =>
-
-    //     )
-    //   );
-    // this.chartDataInterval$ =  observableInterval.subscribe(
-    //   (data : any) => {
-    //     // Handle the API response here
-    //     let selectedDateValues: any;
-    //     // selectedDateValues = this.filterSelectedDateRangeFromSource(
-    //     //   data,
-    //     //   startdate,
-    //     //   enddate_
-    //     // );
-    //       console.log('api', data);
-    //     // let latestitem = selectedDateValues;
-    //     this.handlePlaceOrder(data[0], B1, T1, price);
-    //   },
-    //   (error) => {
-    //     console.error('API Error:', error);
-    //   }
-    // );
+  setDynamicAlert(BuyingStrike : string , tsym : any, priceToBuy : any) {
+    console.log('here buy and sell values' )
+    
+    let getToken = this.flattradeService.getUserObjectFromLocalStorage();
+      let SetAlert = {
+      };
+      SetAlert = `jData={
+        "uid":"${getToken?.client}",
+        "tsym":"${tsym}",
+        "exch":"NFO",
+        "ai_t":"LTP_B",
+        "validity":"GTT",
+        "d":"${priceToBuy}",
+        "remarks":"${BuyingStrike} is triggered for buy "
+      }
+     &jKey=${getToken?.token}`;
+      this.httpClient.post(FlatTradeURLs.SetAlert, SetAlert).subscribe((SetAlert: any) => {
+         console.log('buy Trigger alert' , SetAlert);
+         if (SetAlert?.al_id) {
+         // this.placeOrder()
+         }
+      });
+    
   }
 }
