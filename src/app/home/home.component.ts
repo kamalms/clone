@@ -529,6 +529,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       });
   }
 
+  // create strategy from parent strike using below method
   getCloneValues(strike: any) {
     this.supabase
       .getPriceValuesFromPriceTable(strike?.token)
@@ -553,7 +554,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
                 b1: tokenvalues?.B1,
                 t1: tokenvalues?.T1,
                 sl: tokenvalues?.SL,
-
+                isRunning : tokenvalues?.s_running_status ?  tokenvalues?.s_running_status : false
               });
             });
             // cloneForm is array created for child ptable list
@@ -677,7 +678,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     bodyOfplaceOrder = `jData={"uid":"${getToken?.client}","exch":"NFO",
     "token":"${token}",
     "st":"${currenttime}",
-    "intrv":"15"}&jKey=${getToken?.token}`;
+    "intrv":"1"}&jKey=${getToken?.token}`;
     return this.httpClient.post(
       FlatTradeURLs.TIMEPRICESeries,
       bodyOfplaceOrder
@@ -703,9 +704,21 @@ export class HomeComponent implements OnInit, AfterViewInit {
       })
     }
   }
-  startAlgo(token: any, strategy_id: number) {
-    const apiInterval = 30000; // 40 seconds in milliseconds
+  startAlgo(token: any, strategy_id: number, dname : string) {
+    const apiInterval = 10000; // 40 seconds in milliseconds
     console.log('new logic check start api call on parent strike click', token)
+     this.eachchildvalue.filter((strategyObject: any) => {
+      if (strategyObject?.strategy_id == strategy_id) {
+        strategyObject.isRunning = true;
+        this.supabase.updateToStrikePrice({
+          s_running_status : true,
+          token: strategyObject?.strategy_id
+        });
+        return strategyObject;
+      } else {
+        return;
+      }
+    });
 
     this.parentStrikeInterval$ = interval(apiInterval).pipe(
       share(), // Use the share operator to make the observable shared
@@ -743,6 +756,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
             return;
           }
         });
+        // let objectdata = getValueEveryMinute(THIS);
+        let objectdata = data[0];
+        console.log('objectdata', objectdata)
+        this.handlePlaceOrder(objectdata,
+          eachstratey[0] , dname);
         //  if (strategyid?.scriptid == data?.scriptid) {
         // if (strategyObject?.strategy_id == strategy_id ) {
         //  let childCloneItemValues = {
@@ -770,17 +788,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
         //   return objectToReturn;
         // }
         // this.filterByDate(childCloneItemValues?.strikeData, childCloneItemValues.strategyobject?.startdate, childCloneItemValues.strategyobject?.enddate)
-      // let objectdata = getValueEveryMinute(THIS);
-        let objectdata = data[0];
-        console.log('objectdata', objectdata)
-        this.handlePlaceOrder(objectdata,
-          eachstratey[0] , token);
       }
       );
     }
   }
   ArrayofObject: any[] = [];
-  handlePlaceOrder(object: any, strageryFormValues: any , strikeUniqueid : number) {
+  handlePlaceOrder(object: any, strageryFormValues: any , strikeUniqueid : string) {
     let B1 = strageryFormValues?.b1;
     let T1 = strageryFormValues?.t1;
     let SL = parseFloat(strageryFormValues?.sl);
@@ -790,6 +803,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     let highPrice = parseFloat(object?.inth);
     let lowPrice = object?.intl;
     // reveresedchidlforms.forEach((i: any) => {
+      // option buy logic
     if (!strageryFormValues.buytriggered) {
 
       // buy block insert objects 

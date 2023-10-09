@@ -31,6 +31,7 @@ import { ReportsComponent } from './reports/reports.component';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ChartModule } from 'primeng/chart';
 import { LoginComponent } from './login/login.component';
+import {ProgressBarModule} from 'primeng/progressbar';
 const routes: Routes = [
   { path: 'backtestreports', component: ReportsComponent },
   // { path: 'bnlevels', component: BnlevelsComponent },
@@ -72,7 +73,8 @@ const routes: Routes = [
     RouterModule.forRoot(routes),
     TableModule,
     ButtonModule,
-    DropdownModule
+    DropdownModule,
+    ProgressBarModule
   ],
   providers: [],
   bootstrap: [AppComponent],

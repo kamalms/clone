@@ -178,6 +178,7 @@ export class SupabaseService {
               buytriggered:dataFromForm?.buytriggered,
               selltriggered:dataFromForm?.selltriggered,
               sltriggered:dataFromForm?.sltriggered,
+              s_running_status:dataFromForm?.s_running_status  
 
             },
           ])

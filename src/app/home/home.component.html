@@ -98,6 +98,7 @@
                 <th>B1</th>
                 <th>T1</th>
                 <th>SL</th>
+                <th>Running Status</th>
                 <th style="width: 8rem"></th>
               </tr>
             </ng-template>
@@ -118,6 +119,14 @@
                 <td>{{ cloneitem?.b1 }}</td>
                 <td>{{ cloneitem?.t1 }}</td>
                 <td>{{ cloneitem?.sl }}</td>
+                <td> 
+                  <p-progressBar *ngIf= "cloneitem?.isRunning" mode="indeterminate" 
+                  [style]="{'height': '6px'}"></p-progressBar>
+                  
+                <div  *ngIf= "!cloneitem?.isRunning">
+                  Not started or stoped
+                </div>
+                </td>
                 <td>
                   <div class="flex">
                     <button
@@ -150,7 +159,7 @@
                       pRipple
                       icon="pi pi-play"
                       class="p-button-rounded p-button-success mr-2"
-                      (click)="startAlgo(cloneitem?.token, cloneitem?.id)"
+                      (click)="startAlgo(cloneitem?.token, cloneitem?.id , cloneitem?.tsym)"
                     ></button>
                     <button
                       pButton
