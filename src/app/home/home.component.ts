@@ -704,7 +704,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       })
     }
   }
-  startAlgo(token: any, strategy_id: number, dname : string) {
+  startAlgo(token: any, strategy_id: number, dname : string, strikename: string) {
     const apiInterval = 10000; // 40 seconds in milliseconds
     console.log('new logic check start api call on parent strike click', token)
      this.eachchildvalue.filter((strategyObject: any) => {
@@ -760,7 +760,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
         let objectdata = data[0];
         console.log('objectdata', objectdata)
         this.handlePlaceOrder(objectdata,
-          eachstratey[0] , dname);
+          eachstratey[0] , dname , strikename);
         //  if (strategyid?.scriptid == data?.scriptid) {
         // if (strategyObject?.strategy_id == strategy_id ) {
         //  let childCloneItemValues = {
@@ -793,7 +793,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
   }
   ArrayofObject: any[] = [];
-  handlePlaceOrder(object: any, strageryFormValues: any , strikeUniqueid : string) {
+  handlePlaceOrder(object: any, strageryFormValues: any , strikeUniqueid : string , strikename : string) {
     let B1 = strageryFormValues?.b1;
     let T1 = strageryFormValues?.t1;
     let SL = parseFloat(strageryFormValues?.sl);
@@ -831,7 +831,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
           ).then((updatedToBackEnd:any) => {
             console.log('updatedToBackEnd' , updatedToBackEnd)
           });
-          this.setDynamicAlert(`${strikeUniqueid} buying call` ,strikeUniqueid, closePrice);
+          this.setDynamicAlert(`${strikename} buying call` ,strikeUniqueid, closePrice);
       }
     } else {
 
@@ -871,7 +871,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
             });
 
             // dynamic alert set 
-            this.setDynamicAlert(`${strikeUniqueid} selling call alert` ,strikeUniqueid, highPrice);
+            this.setDynamicAlert(`${strikename} selling call alert` ,strikeUniqueid, highPrice);
         }
         // it mean b1 executed and sell also not executed sl also not triggered
         if (strageryFormValues.buytriggered && !strageryFormValues.selltriggered &&
@@ -917,7 +917,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
             });
 
             // SL trigger alert 
-            this.setDynamicAlert(`${strikeUniqueid} SL call alert` ,strikeUniqueid, highPrice);
+            this.setDynamicAlert(`${strikename} SL call alert` ,strikeUniqueid, highPrice);
             }
           
         }
@@ -1013,5 +1013,34 @@ export class HomeComponent implements OnInit, AfterViewInit {
          }
       });
     
+  }
+
+  // get all alert set by api
+  getPendingAlert() {
+    let getToken = this.flattradeService.getUserObjectFromLocalStorage();
+      let GetPendingAlert = {
+      };
+      GetPendingAlert = `jData={"uid":"FT009181"}&jKey=${getToken?.token}`;
+      this.httpClient.post(FlatTradeURLs.GetPendingAlert,GetPendingAlert).subscribe((GetPendingAlert: any) => {
+         console.log('GetPendingAlert' , GetPendingAlert);
+      });
+  }
+  GetEnabledAlertTypes() {
+    let getToken = this.flattradeService.getUserObjectFromLocalStorage();
+    let GetEnabledAlertTypes = {
+    };
+    GetEnabledAlertTypes = `jData={"uid":"${getToken?.client}"}&jKey=${getToken?.token}`;
+    this.httpClient.post(FlatTradeURLs.GetEnabledAlertTypes, GetEnabledAlertTypes).subscribe((GetEnabledAlertTypes: any) => {
+       console.log('GetEnabledAlertTypes' , GetEnabledAlertTypes);
+    });
+  }
+  GetBrokerMsg() {
+    let getToken = this.flattradeService.getUserObjectFromLocalStorage();
+    let GetBrokerMsg = {
+    };
+    GetBrokerMsg = `jData={"uid":"${getToken?.client}"}&jKey=${getToken?.token}`;
+    this.httpClient.post(FlatTradeURLs.GetBrokerMsg, GetBrokerMsg).subscribe((GetBrokerMsg: any) => {
+       console.log('GetBrokerMsg' , GetBrokerMsg);
+    });
   }
 }

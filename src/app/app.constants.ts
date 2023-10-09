@@ -17,7 +17,8 @@ export class FlatTradeURLs {
   public static ModifyAlert =`${FlatTradeURLs.primeURL}ModifyAlert`;
   public static GetPendingAlert =`${FlatTradeURLs.primeURL}GetPendingAlert`;
   public static PlaceOCOOrder =`${FlatTradeURLs.primeURL}PlaceOCOOrder`;
+  public static GetEnabledAlertTypes =`${FlatTradeURLs.primeURL}GetEnabledAlertTypes`;
 
-
-
+  public static GetBrokerMsg =`${FlatTradeURLs.primeURL}GetBrokerMsg`;
+  
 }
