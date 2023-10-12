@@ -1019,7 +1019,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     let getToken = this.flattradeService.getUserObjectFromLocalStorage();
       let GetPendingAlert = {
       };
-      GetPendingAlert = `jData={"uid":"FT032747"}&jKey=${getToken?.token}`;
+      GetPendingAlert = `jData={"uid":"${getToken?.client}"}&jKey=${getToken?.token}`;
       this.httpClient.post(FlatTradeURLs.GetPendingAlert,GetPendingAlert).subscribe((GetPendingAlert: any) => {
          console.log('GetPendingAlert' , GetPendingAlert);
       });
