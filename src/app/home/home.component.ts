@@ -831,7 +831,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
           ).then((updatedToBackEnd:any) => {
             console.log('updatedToBackEnd' , updatedToBackEnd)
           });
-          this.setDynamicAlert(`${strikename} buying call` ,strikeUniqueid, closePrice);
+          this.setDynamicAlert(`${strikename} buying call` ,strikeUniqueid, closePrice, "B");
       }
     } else {
 
@@ -871,7 +871,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
             });
 
             // dynamic alert set 
-            this.setDynamicAlert(`${strikename} selling call alert` ,strikeUniqueid, highPrice);
+            this.setDynamicAlert(`${strikename} selling call alert` ,strikeUniqueid, highPrice, "S");
         }
         // it mean b1 executed and sell also not executed sl also not triggered
         if (strageryFormValues.buytriggered && !strageryFormValues.selltriggered &&
@@ -917,7 +917,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
             });
 
             // SL trigger alert 
-            this.setDynamicAlert(`${strikename} SL call alert` ,strikeUniqueid, highPrice);
+            this.setDynamicAlert(`${strikename} SL call alert` ,strikeUniqueid, highPrice, "S");
             }
           
         }
@@ -990,9 +990,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.showSuccess('success', 'success', 'Algo Stopped');
   }
 
-  setDynamicAlert(BuyingStrike : string , tsym : any, priceToBuy : any) {
+  setDynamicAlert(BuyingStrike : string , tsym : any, priceToBuy : any , BorS: any) {
     console.log('here buy and sell values' )
-    
+    this.placeOrder(tsym, priceToBuy,BorS )
     let getToken = this.flattradeService.getUserObjectFromLocalStorage();
       let SetAlert = {
       };
@@ -1009,7 +1009,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.httpClient.post(FlatTradeURLs.SetAlert, SetAlert).subscribe((SetAlert: any) => {
          console.log('buy Trigger alert' , SetAlert);
          if (SetAlert?.al_id) {
-         // this.placeOrder()
          }
       });
     
@@ -1020,7 +1019,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     let getToken = this.flattradeService.getUserObjectFromLocalStorage();
       let GetPendingAlert = {
       };
-      GetPendingAlert = `jData={"uid":"FT009181"}&jKey=${getToken?.token}`;
+      GetPendingAlert = `jData={"uid":"FT032747"}&jKey=${getToken?.token}`;
       this.httpClient.post(FlatTradeURLs.GetPendingAlert,GetPendingAlert).subscribe((GetPendingAlert: any) => {
          console.log('GetPendingAlert' , GetPendingAlert);
       });
@@ -1041,6 +1040,36 @@ export class HomeComponent implements OnInit, AfterViewInit {
     GetBrokerMsg = `jData={"uid":"${getToken?.client}"}&jKey=${getToken?.token}`;
     this.httpClient.post(FlatTradeURLs.GetBrokerMsg, GetBrokerMsg).subscribe((GetBrokerMsg: any) => {
        console.log('GetBrokerMsg' , GetBrokerMsg);
+    });
+  }
+  // PLACE ORDER API
+  placeOrder(tsym:any , buyprice: any ,trantype:any ) {
+
+    let getToken = this.flattradeService.getUserObjectFromLocalStorage();
+    let bodyOfplaceOrder = {
+    };
+    const jKey = getToken?.token;
+
+    // tsym is unique name of strick
+    // prc is order price it need to set my input box
+    //trantype it is main Buy or Sell
+    bodyOfplaceOrder = `jData={"uid":"${getToken?.client}",
+      "actid":"${getToken?.client}",
+      "exch":"NFO",
+      "tsym":"${tsym}",
+      "qty":"15",
+      "prc":"${buyprice}",
+      "prd":"M",
+      "trantype":"${trantype}",
+      "prctyp":"LMT",
+      "ret":"DAY"
+    }
+   &jKey=${jKey}`;
+    this.httpClient.post(FlatTradeURLs.PLACEORDER, bodyOfplaceOrder).subscribe((scriptsResult: any) => {
+      console.log('place order', scriptsResult);
+      if (scriptsResult?.norenordno) {
+
+      }
     });
   }
 }
