@@ -100,7 +100,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
   algoinitiaedTokens: any[] = [];
   cities!: any[];
   selectedCity: any;
-
+  // interval array to stop specific interval from loop
+  subscriptions: any= [];
+  parentStrikeInterval$: any;
   constructor(
     private dataService: DatasharedService,
     private elementRef: ElementRef,
@@ -137,6 +139,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       });
   }
   ngOnInit() {
+    this.getRunningAlogs();
     // , routePath: '/backtestreports'
     // routePath: '/bnlevels'
     this.items = [
@@ -531,6 +534,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   // create strategy from parent strike using below method
   getCloneValues(strike: any) {
+    // getting strategey values from table
     this.supabase
       .getPriceValuesFromPriceTable(strike?.token)
       .then((tokenValues: any) => {
@@ -559,8 +563,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
             });
             // cloneForm is array created for child ptable list
             this.collectionofStrikes[index].cloneForm = cloneItemsofArray;
-
-            this.showSuccess('info', 'Success', 'Strategy Added');
+            this.collectionofStrikes[index]?.cloneForm.map((childStrategy: any) => {
+              this.initAlgoRealTime(childStrategy)
+            });
+            this.showSuccess('info', 'Success', 'Strategy Added');      
           } else {
             console.log(`Item with id ${strike?.id} not found in the array`);
           }
@@ -578,7 +584,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.selectedStrikeLevel !== undefined
     ) {
       this.supabase
-        .getPriceValuesFromPriceTablebyID(this.selectedStrikeLevel?.id)
+        .getPriceValuesFromPriceTableByID(this.selectedStrikeLevel?.id)
         .then((tokenValues: any) => {
           console.log('form response', tokenValues?.data);
           this.priceLevelsForm
@@ -719,6 +725,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
         return;
       }
     });
+    this.findAndUpdateCollectionArray(token , strategy_id, true)
+    // check the isRunning is true it mean it is algo started so save that status in localstorage
+    // let runningAlgo = this.eachchildvalue.filter( strategyId =>  strategyId?.isRunning) ;
+   
 
     this.parentStrikeInterval$ = interval(apiInterval).pipe(
       share(), // Use the share operator to make the observable shared
@@ -730,7 +740,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
     );
     if (this.parentStrikeInterval$) {
       let currentIndex = 0;
-      this.parentStrikeInterval$.subscribe((data: any) => {
+      const subscription  : any= this.parentStrikeInterval$.subscribe((data: any) => {
+        // const index = this.subscriptions.indexOf(subscription);
+        // const customData = this.subscriptions[index]?.customData;
         // let reverseArrayOrder = data?.scriptData.reverse();
        // let reverseArrayOrder = data?.reverse();
       //   console.log('Next: ', reverseArrayOrder);
@@ -788,8 +800,15 @@ export class HomeComponent implements OnInit, AfterViewInit {
         //   return objectToReturn;
         // }
         // this.filterByDate(childCloneItemValues?.strikeData, childCloneItemValues.strategyobject?.startdate, childCloneItemValues.strategyobject?.enddate)
+          // Store the subscription in an array
+        // Store the subscription and custom data in an object
+        const subscriptionData = {
+          subscription: subscription,
+          strategy_id: strategy_id
+        };
+       this.subscriptions.push(subscriptionData);
       }
-      );
+      );  
     }
   }
   ArrayofObject: any[] = [];
@@ -926,11 +945,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
   }
   dynamicArrays: any[] = [];
-  initAlgoRealTime(price: any) {
+  initAlgoRealTime(childStrategyId: any) {
 
     // get strategy form values from table
     this.supabase
-      .getPriceValuesFromPriceTableByID(price?.id ? price?.id : price)
+      .getPriceValuesFromPriceTableByID(childStrategyId?.id ? childStrategyId?.id : childStrategyId)
       .then((tokenValues: any) => {
         if (tokenValues?.data?.length != 0) {
           let B1 = tokenValues?.data[0]?.B1;
@@ -946,7 +965,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
           let serverSide_SL_trigger_value = tokenValues?.data[0]?.sltriggered;
           // this.getChartDataByMin(price, startdate, enddate, B1, T1);
           let pricelevelobject = {
-            strategyid: price.id,
+            strategyid: childStrategyId?.id,
             scriptid: token,
             b1: B1,
             t1: T1,
@@ -962,12 +981,15 @@ export class HomeComponent implements OnInit, AfterViewInit {
           // const newArray: any[] = [pricelevelobject]; // Create a new empty array
           // this.dynamicArrays.push(newArray);
           this.eachchildvalue?.push(pricelevelobject);
-          console.log('on push check main arrrya ' , this.eachchildvalue)
+          // console.log('on push check main arrrya ' , this.eachchildvalue);
+
+          // need to check below line is need for further ???
+          // after edit of on running only need to update the b1 and t1 values ? right ? what is use of below one
+          // any how now works as expected need to backtest and need to remove in further if unwanted means
           this.dataService.updateB1(pricelevelobject);
         }
       });
   }
-  parentStrikeInterval$: any;
 
   filterByDate(data: any, startdate: any, enddate_: any) {
     let selectedDateValues: any;
@@ -984,10 +1006,35 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
   // pause algo mean stop the trade running on this condition
   pause: boolean = false;
-  pauseAlgo(token: string) {
-    // this.pause = true;
-    this.chartDataInterval$.unsubscribe();
+  pauseAlgo(strike: any) {
+    console.log('strike' , strike?.token)
+    this.supabase.updateToStrikePrice({
+      s_running_status: !strike?.isRunning,
+      token: strike?.id
+    });
+    // To stop a specific interval, call unsubscribe on the corresponding subscription
+    let selectedSub = this.subscriptions.filter((f: any) => {
+      if (f?.strategy_id == strike?.id) {
+        return f;
+      }
+    });
+    this.unsubscribeAll(selectedSub);
+
+    const index = this.collectionofStrikes.findIndex(
+      (item) => item.token === strike?.token
+    );
+    if (index !== -1) {
+      let needtoUpdatedStrategyValue = this.collectionofStrikes[index].cloneForm.
+         filter( ( eachStrategy : any)=> eachStrategy?.id == strike?.id);
+      needtoUpdatedStrategyValue[0].isRunning = false;
+    }
+
     this.showSuccess('success', 'success', 'Algo Stopped');
+  }
+  unsubscribeAll(selectedSub : any) {
+    selectedSub.forEach( ( subscription : any )=> {
+      subscription?.subscription.unsubscribe();
+    });
   }
 
   setDynamicAlert(BuyingStrike : string , tsym : any, priceToBuy : any , BorS: any) {
@@ -1071,5 +1118,34 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
       }
     });
+  }
+
+  getRunningAlogs() 
+  {
+    this.supabase.getActivatedStrategyFromTable().then((e: any) => {
+      console.log('get running algos ', e);
+      if (e && e?.data.length > 0) {
+        e?.data.map( ( cloneitem : any ) => {
+
+          if (cloneitem?.s_running_status) {
+             this.startAlgo(cloneitem?.token, cloneitem?.id , cloneitem?.tsym, cloneitem?.dname)
+        }
+      })
+      }
+   
+    });
+    
+  }
+
+  findAndUpdateCollectionArray(itemToFound: any , childId: any, isRunningStatus : boolean) {
+    const index = this.collectionofStrikes.findIndex(
+      (item) => item.token === itemToFound
+    );
+    if (index !== -1) {
+      let needtoUpdatedStrategyValue = this.collectionofStrikes[index].cloneForm.
+         filter( ( eachStrategy : any)=> eachStrategy?.id == childId);
+         if (needtoUpdatedStrategyValue && needtoUpdatedStrategyValue?.length > 0 )
+         needtoUpdatedStrategyValue[0].isRunning = isRunningStatus;
+    }
   }
 }

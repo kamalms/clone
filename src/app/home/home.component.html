@@ -154,14 +154,14 @@
                       (click)="setTargetofClone(cloneitem)"
                     ></button>
 
-                    <button
+                    <button *ngIf="!cloneitem?.isRunning"
                       pButton
                       pRipple
                       icon="pi pi-play"
                       class="p-button-rounded p-button-success mr-2"
                       (click)="startAlgo(cloneitem?.token, cloneitem?.id , cloneitem?.tsym, cloneitem?.dname)"
                     ></button>
-                    <button
+                    <button *ngIf="cloneitem?.isRunning"
                       pButton
                       pRipple
                       icon="pi pi-pause"

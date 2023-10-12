@@ -25,4 +25,11 @@ export class CommonService {
     //   return data;
     return JSON.parse(localStorage.getItem('userObj') || '{}');
   }
+
+  setrunningAlgos(currentAlgos : any) {
+    localStorage.setItem('runningAlogs', JSON.stringify(currentAlgos));
+  }
+  getRunningAlgos() {
+    return JSON.parse(localStorage.getItem('runningAlogs') || '{}');
+  }
 }

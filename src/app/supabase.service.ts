@@ -133,8 +133,8 @@ export class SupabaseService {
     return this.supabase.from('strike_prices').select('*').eq('id', id);
   }
 
-  async getPriceValuesFromPriceTablebyID(token: string) {
-    return this.supabase.from('strike_prices').select('*').eq('id', token);
+  async getActivatedStrategyFromTable() {
+    return this.supabase.from('strike_prices').select('*').eq('s_running_status', true);
   }
   async insertToStrikePrice(dataFromForm: any, startandenddate: any) {
     return this.supabase
@@ -148,7 +148,9 @@ export class SupabaseService {
           SL: dataFromForm?.SL,
           start_date: startandenddate?.start_date,
           end_date: startandenddate?.end_date,
-          buytriggered:dataFromForm?.buytriggered
+          buytriggered:dataFromForm?.buytriggered,
+          dname:dataFromForm?.dname,
+          tsym:dataFromForm?.tsym
         },
       ])
       .select();
