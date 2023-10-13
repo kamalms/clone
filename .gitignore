@@ -2,9 +2,12 @@ dist/angular-user-management/3rdpartylicenses.txt
 node_modules/
 node_modules
 .angular
+dist
+dist/
 dist/angular-user-management/main.31e29ecbdccad0d3.js
 dist
 dist/angular-user-management/main.a1a935c8f752b4cd.js
 dist/angular-user-management/index.html
 dist/angular-user-management/main.a1a935c8f752b4cd.js
 dist/angular-user-management/main.a1a935c8f752b4cd.js
+dist/angular-user-management/index.html

@@ -47,7 +47,7 @@ export class AppComponent implements OnInit {
       let getToken = this.flattradeService.getUserObjectFromLocalStorage();
       let tokenData = {
         "token" : `${this.token}`,
-        "client":`${getToken?.client}`,
+        "client":"FT032747",
         "stat":"ok",
         "ems":""
       };

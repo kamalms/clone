@@ -725,6 +725,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
         return;
       }
     });
+    // on play click show and hide pause or play button logic
     this.findAndUpdateCollectionArray(token , strategy_id, true)
     // check the isRunning is true it mean it is algo started so save that status in localstorage
     // let runningAlgo = this.eachchildvalue.filter( strategyId =>  strategyId?.isRunning) ;
@@ -1141,7 +1142,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     const index = this.collectionofStrikes.findIndex(
       (item) => item.token === itemToFound
     );
-    if (index !== -1) {
+    if (index !== -1 && this.collectionofStrikes[index].cloneForm) {
       let needtoUpdatedStrategyValue = this.collectionofStrikes[index].cloneForm.
          filter( ( eachStrategy : any)=> eachStrategy?.id == childId);
          if (needtoUpdatedStrategyValue && needtoUpdatedStrategyValue?.length > 0 )
