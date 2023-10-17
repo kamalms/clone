@@ -685,19 +685,40 @@ export class HomeComponent implements OnInit, AfterViewInit {
     "token":"${token}",
     "st":"${currenttime}",
     "intrv":"1"}&jKey=${getToken?.token}`;
+
+    // to do web workder call
+    // if (typeof Worker !== 'undefined') {
+    //   const worker = new Worker(new URL('../app.worker', import.meta.url));
+    //   worker.postMessage({ functionName: 'makeRequest', num1: bodyOfplaceOrder }); // Send data to the worker
+  
+    //   worker.onmessage = ({ data }) => {
+    //     console.log('Result 1:', data);
+    //     console.log('Result from worker:', data.result);
+
+       
+    //   // return observable;
+      
+    //   };
+
+    // } else {
+    //   console.log('not support on this env')
+    //   // Web Workers are not supported in this environment.
+    //   // You should add a fallback so that your program still executes correctly.
+    // } 
+
     return this.httpClient.post(
       FlatTradeURLs.TIMEPRICESeries,
       bodyOfplaceOrder
     )
-    // .pipe(
-    //   map((response) => {
-    //     const modifiedResponse = {
-    //       scriptData: response,
-    //       scriptid: token,
-    //     };
-    //     return modifiedResponse;
-    //   })
-    // );
+    .pipe(
+      map((response) => {
+        const modifiedResponse = {
+          scriptData: response,
+          scriptid: token,
+        };
+        return modifiedResponse;
+      })
+    );
 
   }
 
@@ -711,6 +732,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
   }
   startAlgo(token: any, strategy_id: number, dname : string, strikename: string) {
+     // this.webworker.startWorker();
+    // 10000 == 1 sec
     const apiInterval = 10000; // 40 seconds in milliseconds
     console.log('new logic check start api call on parent strike click', token)
      this.eachchildvalue.filter((strategyObject: any) => {
@@ -732,7 +755,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
    
 
     this.parentStrikeInterval$ = interval(apiInterval).pipe(
-      share(), // Use the share operator to make the observable shared
+     // share(), // Use the share operator to make the observable shared
       switchMap(() =>
            this.getStrikeDataByChart(token)
 
@@ -741,7 +764,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     );
     if (this.parentStrikeInterval$) {
       let currentIndex = 0;
-      const subscription  : any= this.parentStrikeInterval$.subscribe((data: any) => {
+      const subscription  : any= this.parentStrikeInterval$?.subscribe((data: any) => {
         // const index = this.subscriptions.indexOf(subscription);
         // const customData = this.subscriptions[index]?.customData;
         // let reverseArrayOrder = data?.scriptData.reverse();
