@@ -710,15 +710,15 @@ export class HomeComponent implements OnInit, AfterViewInit {
       FlatTradeURLs.TIMEPRICESeries,
       bodyOfplaceOrder
     )
-    .pipe(
-      map((response) => {
-        const modifiedResponse = {
-          scriptData: response,
-          scriptid: token,
-        };
-        return modifiedResponse;
-      })
-    );
+    // .pipe(
+    //   map((response) => {
+    //     const modifiedResponse = {
+    //       scriptData: response,
+    //       scriptid: token,
+    //     };
+    //     return modifiedResponse;
+    //   })
+    // );
 
   }
 
@@ -734,7 +734,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   startAlgo(token: any, strategy_id: number, dname : string, strikename: string) {
      // this.webworker.startWorker();
     // 10000 == 1 sec
-    const apiInterval = 10000; // 40 seconds in milliseconds
+    const apiInterval = 26000; // 40 seconds in milliseconds
     console.log('new logic check start api call on parent strike click', token)
      this.eachchildvalue.filter((strategyObject: any) => {
       if (strategyObject?.strategy_id == strategy_id) {
