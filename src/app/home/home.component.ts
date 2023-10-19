@@ -1113,9 +1113,24 @@ export class HomeComponent implements OnInit, AfterViewInit {
        console.log('GetBrokerMsg' , GetBrokerMsg);
     });
   }
+  checkItIsNiftyORBankNifty (myString : string) {
+    if (myString.charAt(0) === "B") {
+      // Action for strings starting with "B"
+      console.log("String starts with 'a'");
+      return 15
+    } else if (myString.charAt(0) === "N") {
+      // Action for strings starting with "b"
+      console.log("String starts with 'N'");
+      return 50;
+    } else {
+      // Default action for other cases
+      console.log("String starts with a letter other than 'a' or 'b'");
+      return 0;
+    }
+  }
   // PLACE ORDER API
   placeOrder(tsym:any , buyprice: any ,trantype:any ) {
-
+    let decideQty = this.checkItIsNiftyORBankNifty(tsym);
     let getToken = this.flattradeService.getUserObjectFromLocalStorage();
     let bodyOfplaceOrder = {
     };
@@ -1128,7 +1143,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       "actid":"${getToken?.client}",
       "exch":"NFO",
       "tsym":"${tsym}",
-      "qty":"15",
+      "qty":"${decideQty}",
       "prc":"${buyprice}",
       "prd":"M",
       "trantype":"${trantype}",
