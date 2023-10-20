@@ -1,0 +1,70 @@
+<div class="container" style="padding: 50px 0 100px 0">
+  <app-market-watch *ngIf="session; else auth" [session]="session" ></app-market-watch>
+  <ng-template #auth>
+    <app-auth></app-auth>
+  </ng-template>
+</div>
+
+
+<header>
+  <h1>Flat Trade REST API Integration</h1>
+</header>
+<section class="layout-container">
+<div class="left-half bank-nifty-container">
+<!-- will add bank nifty support and resistance level input in this area -->
+  <app-bn-sr-level></app-bn-sr-level>
+</div>
+<div class="right-half stricke-container">
+  <h4> Bank Nifty -- {{bankniftyTokenID}}</h4>
+<!-- <span>
+  <a href="#" (click)="getBNValues()">
+    get BN
+  </a>
+</span> -->
+
+<div class="card flex justify-content-center" style="text-align: center;">
+  <label style="display: block; padding: 2rem;">Get Strike list</label>
+  <p-autoComplete [(ngModel)]="selectedStrike" [suggestions]="suggestions" (completeMethod)="search($event)" field="dname"></p-autoComplete>
+</div>
+<div>
+  Selected Strick is {{selectedStrike?.dname}}
+  token {{selectedStrike?.token}}
+  tsym {{selectedStrike?.tsym}}
+</div>
+<div class="card flex flex-wrap gap-3 p-fluid" style="padding: 2rem;">
+  <div class="flex-auto" style="    margin-bottom: 2rem;">
+      <label for="integeronly" >B1 (Buying zone 1 )</label>
+      <p-inputNumber inputId="integeronly" [(ngModel)]="buy1"> </p-inputNumber>
+  </div>
+  <div class="flex-auto" style="    margin-bottom: 2rem;">
+      <label for="withoutgrouping">T1 (Target 1 )</label>
+      <p-inputNumber [(ngModel)]="target1" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"> </p-inputNumber>
+  </div>
+  <div class="flex-auto" style="    margin-bottom: 2rem;">
+      <label for="minmaxfraction">SL</label>
+      <p-inputNumber [(ngModel)]="SL" inputId="minmaxfraction" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"> </p-inputNumber>
+  </div>
+</div>
+<div class="column">
+  <button (click)="sendMsg()">Web socket Auth</button>
+</div>
+<div class="button-container">
+<div class="card flex flex-wrap gap-3 justify-content-center">
+  <p-button class="btn-margin" label="Set Strike Values" (onClick)="setStrikeandValues()"></p-button>
+  <p-button class="btn-margin" label="BN Strick Rate" (click)="getBankNiftySpecificStrickeRate()"></p-button>
+
+  <p-button class="btn-margin" label="Initiate Algo" styleClass="p-button-success" (click)="checkBNsupport()" ></p-button>
+  <p-button class="btn-margin" label="Modify" styleClass="p-button-warning"></p-button>
+  <p-button class="btn-margin" label="Enable Fields" styleClass="p-button-danger"></p-button>
+</div>
+<div class="flex card">
+  <p-button label="BN values" (onClick)="getBNValues()"></p-button>
+</div>
+<div class="chart-data">
+  <p>By Chart Data API</p>
+  <p-button label="Strike Chart Data" (onClick)="getStrikeDataByChart()" styleClass="p-button-secondary"></p-button>
+  <p-button label="BN Chart Data" (onClick)="getBNvalueByChart()"></p-button>
+</div>
+</div>
+</div>
+</section>

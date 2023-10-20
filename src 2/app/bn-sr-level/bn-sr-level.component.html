@@ -1,0 +1,43 @@
+Bank Nifty Support & Resistance
+<div class="main-container">
+  <div class="support">
+<div class="card flex flex-wrap gap-3 p-fluid mt-5" style="padding: 2rem;">
+  <div class="flex-auto mt-5" style="    margin-bottom: 2rem;">
+      <label for="integeronly" >S1</label>
+      <p-inputNumber inputId="integeronly" [(ngModel)]="s1" class="mt1"> </p-inputNumber>
+  </div>
+  <div class="flex-auto" style="    margin-bottom: 2rem;">
+      <label for="withoutgrouping">S2</label>
+      <p-inputNumber [(ngModel)]="s2" mode="decimal" class="mt1" inputId="withoutgrouping" [useGrouping]="false"> </p-inputNumber>
+  </div>
+  <div class="flex-auto" style="    margin-bottom: 2rem;">
+      <label for="minmaxfraction">S3</label>
+      <p-inputNumber [(ngModel)]="s3" inputId="minmaxfraction" class="mt1" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"> </p-inputNumber>
+  </div>
+</div>
+</div>
+<div class="resistancelevels">
+  <div class="card flex flex-wrap gap-3 p-fluid" style="padding: 2rem;">
+    <div class="flex-auto" style="    margin-bottom: 2rem;">
+        <label for="integeronly" >R1</label>
+        <p-inputNumber inputId="integeronly" class="mt1" [(ngModel)]="r1"> </p-inputNumber>
+    </div>
+    <div class="flex-auto" style="    margin-bottom: 2rem;">
+        <label for="withoutgrouping">R2</label>
+        <p-inputNumber [(ngModel)]="r2" mode="decimal" class="mt1" inputId="withoutgrouping" [useGrouping]="false"> </p-inputNumber>
+    </div>
+    <div class="flex-auto" style="    margin-bottom: 2rem;">
+        <label for="minmaxfraction">R3</label>
+        <p-inputNumber [(ngModel)]="r3" class="mt1" inputId="minmaxfraction"  > </p-inputNumber>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<p-button class="btn-margin" label="Save Support & Resistance" (onClick)="saveRandS()"></p-button>
+<div style="padding-top: 1rem;">
+
+
+<p-button  class="btn-margin mt-1" label="ClearValues" styleClass="p-button-danger" (onClick)="clearSupportAndResistance()"></p-button>
+</div>

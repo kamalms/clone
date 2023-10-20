@@ -1,0 +1,53 @@
+html, body, section {
+  height: 100%;
+}
+body {
+  color: #fff;
+  font-family: sans-serif;
+  font-size: 1.25rem;
+  line-height: 150%;
+  text-align: center;
+  text-shadow: 0 2px 2px #b6701e;
+}
+
+div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  column-gap: 2rem;
+}
+
+h1 {
+  font-size: 1.75rem;
+  margin: 0 0 0.75rem 0;
+}
+
+/* Pattern styles */
+.layout-container {
+  display: flex;
+}
+
+.left-half {
+  background-color: lightcyan;
+  flex: 1;
+  padding: 1rem;
+}
+
+.right-half {
+  background-color: lightgray;
+  flex: 1;
+  padding: 1rem;
+}
+
+.button-container {
+  flex-direction: row;
+  row-gap: 1.3rem;
+}
+
+.btn-margin{
+  margin: 1.2rem
+}
+
+.chart-data {
+  row-gap: 1rem;
+}
