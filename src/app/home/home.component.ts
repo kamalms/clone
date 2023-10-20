@@ -26,6 +26,8 @@ import { MatTabGroup } from '@angular/material/tabs';
 import { ReportsComponent } from '../reports/reports.component';
 import { DatasharedService } from '../datashared.service';
 import { interval, switchMap, take, map, share } from 'rxjs';
+import { DepthDataService } from '../depth-data.service';
+import { WebSocketService } from '../web-socket.service';
 interface AutoCompleteCompleteEvent {
   originalEvent: Event;
   query: string;
@@ -103,6 +105,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
   // interval array to stop specific interval from loop
   subscriptions: any= [];
   parentStrikeInterval$: any;
+  message = {
+    "t": "c",
+    "uid": "FT032747",
+    "actid": "FT032747",
+    "source": "API",
+    "susertoken": ""
+  }
   constructor(
     private dataService: DatasharedService,
     private elementRef: ElementRef,
@@ -112,7 +121,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private customerService: CustomerService,
     private httpClient: HttpClient,
     private flattradeService: CommonService,
-    private primengConfig: PrimeNGConfig
+    private primengConfig: PrimeNGConfig,
+    public depthData: DepthDataService,
+    public websocketconnection: WebSocketService
   ) { 
     this.cities = [
       {name: '1 M', code: 'NY'},
@@ -121,6 +132,28 @@ export class HomeComponent implements OnInit, AfterViewInit {
       {name: '5M', code: 'IST'},
       {name: '30 sec', code: 'PRS'}
   ];
+
+  depthData.messages.subscribe((result: any) => {
+    console.log('nfo check' , result) 
+    console.log('other ' , result?.e)
+    if (result) {
+      if (result?.e == "NSE") {
+        // BN values comes here
+        console.log('BN values', result?.e);
+        // this.BNValues = result;
+        // this.checkBNsupport(result);
+      } else if (result?.e == "NFO") {
+        // strike price will come here
+        console.log('other ' , result?.e)
+        // this.strikeValues = result;
+        // this.setDynamicAlert(result)
+      } else {
+        // else as per syntax
+      }
+    }
+
+
+  });
   }
 
   // search the script name
@@ -167,6 +200,20 @@ export class HomeComponent implements OnInit, AfterViewInit {
     //   this.rangeofDates = [];
     //   this.formatDateAsRequired(value)
     // });
+
+    this.webconfig()
+  }
+
+  webconfig() {
+    let getToken = this.flattradeService.getUserObjectFromLocalStorage();
+    this.sendMsg();
+     this.message = {
+      "t": "c",
+      "uid": "FT032747",
+      "actid": "FT032747",
+      "source": "API",
+      "susertoken": `${getToken?.token}`
+    }
   }
 
   // algo init
@@ -1186,5 +1233,20 @@ export class HomeComponent implements OnInit, AfterViewInit {
          if (needtoUpdatedStrategyValue && needtoUpdatedStrategyValue?.length > 0 )
          needtoUpdatedStrategyValue[0].isRunning = isRunningStatus;
     }
+  }
+  // get strike rate by web socket depth subcribe
+  getBankNiftySpecificStrickeRate(s : any) {
+    let strickobject = {
+      "t": "d",
+      "k": `NFO|${s}`
+    };
+    this.websocketconnection.getDataFromWS(strickobject);
+  }
+  // related to websocket workaround
+  
+  sendMsg() {
+    console.log("new message from client to websocket: ", this.message);
+    this.depthData.messages.next(this.message);
+    this.getBankNiftySpecificStrickeRate("BANKNIFTY18OCT23C44600");
   }
 }
