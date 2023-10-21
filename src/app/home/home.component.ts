@@ -133,7 +133,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       {name: '30 sec', code: 'PRS'}
   ];
 
-  depthData.messages.subscribe((result: any) => {
+  this.depthData.messages.subscribe((result: any) => {
     console.log('nfo check' , result) 
     console.log('other ' , result?.e)
     if (result) {
@@ -201,12 +201,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
     //   this.formatDateAsRequired(value)
     // });
 
-    this.webconfig()
+    this.webconfig();
   }
 
   webconfig() {
     let getToken = this.flattradeService.getUserObjectFromLocalStorage();
-    this.sendMsg();
      this.message = {
       "t": "c",
       "uid": "FT032747",
@@ -779,8 +778,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
   }
   startAlgo(token: any, strategy_id: number, dname : string, strikename: string) {
+    this.WebSocketAuth();
      // this.webworker.startWorker();
     // 10000 == 1 sec
+    this.getBankNiftySpecificStrickeRateTouchline(token);
     const apiInterval = 26000; // 40 seconds in milliseconds
     console.log('new logic check start api call on parent strike click', token)
      this.eachchildvalue.filter((strategyObject: any) => {
@@ -1234,19 +1235,49 @@ export class HomeComponent implements OnInit, AfterViewInit {
          needtoUpdatedStrategyValue[0].isRunning = isRunningStatus;
     }
   }
-  // get strike rate by web socket depth subcribe
-  getBankNiftySpecificStrickeRate(s : any) {
+ 
+  // related to websocket workaround
+  
+  WebSocketAuth() {
+    console.log("new message from client to websocket: ", this.message);
+    this.depthData.messages.next(this.message);
+    // this.getBankNiftySpecificStrickeRate('26009');
+  }
+  // get BN index values from sockets
+  bankniftyTokenID: any = "26009";
+  getBNValuesByDepth() {
+    // this.depthData.messages.next(this.message);
+    let BNObject = {
+      "t": "d",
+      "k": `NSE|${this.bankniftyTokenID}`
+    }
+    this.websocketconnection.getDataFromWS(BNObject);
+  }
+  getBNValuesByTouchLine() {
+    // this.depthData.messages.next(this.message);
+    let BNObject = {
+      "t": "t",
+      "k": `NSE|${this.bankniftyTokenID}`
+    }
+    this.websocketconnection.getDataFromWS(BNObject);
+  }
+
+   // get strike rate by web socket depth subcribe
+   // by strike rate 
+   getBankNiftySpecificStrickeRate(s : any) {
     let strickobject = {
       "t": "d",
       "k": `NFO|${s}`
     };
     this.websocketconnection.getDataFromWS(strickobject);
   }
-  // related to websocket workaround
-  
-  sendMsg() {
-    console.log("new message from client to websocket: ", this.message);
-    this.depthData.messages.next(this.message);
-    this.getBankNiftySpecificStrickeRate("BANKNIFTY18OCT23C44600");
+
+  getBankNiftySpecificStrickeRateTouchline(s : any) {
+    // NSE|22#BSE|508123#NSE|NIFTY
+    let strickobject = {
+      "t": "t",
+      "k": `NFO|${s}`
+    };
+    this.websocketconnection.getDataFromWS(strickobject);
   }
 }
