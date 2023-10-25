@@ -206,7 +206,8 @@ export class SupabaseService {
     return this.supabase
       .from('backtesting')
       .select('*')
-      .eq('strategy_id', strategy_id);
+      .eq('strategy_id', strategy_id)
+      .order('created_at', { ascending: true });
   }
   async insertToBacktesting(dataFromForm: any) {
     return this.supabase

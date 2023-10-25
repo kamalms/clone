@@ -32,6 +32,8 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { ChartModule } from 'primeng/chart';
 import { LoginComponent } from './login/login.component';
 import {ProgressBarModule} from 'primeng/progressbar';
+import {OverlayPanelModule} from 'primeng/overlaypanel';
+import { CustomDateFormatPipe } from './custom-date-format.pipe';
 const routes: Routes = [
   { path: 'backtestreports', component: ReportsComponent },
   // { path: 'bnlevels', component: BnlevelsComponent },
@@ -47,6 +49,7 @@ const routes: Routes = [
     HomeComponent,
     ReportsComponent,
     LoginComponent,
+    CustomDateFormatPipe,
     // BnlevelsComponent,
   ],
   imports: [
@@ -74,7 +77,8 @@ const routes: Routes = [
     TableModule,
     ButtonModule,
     DropdownModule,
-    ProgressBarModule
+    ProgressBarModule,
+    OverlayPanelModule
   ],
   providers: [],
   bootstrap: [AppComponent],
