@@ -133,27 +133,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
       {name: '30 sec', code: 'PRS'}
   ];
 
-  this.depthData.messages.subscribe((result: any) => {
-    console.log('nfo check' , result) 
-    console.log('other ' , result?.e)
-    if (result) {
-      if (result?.e == "NSE") {
-        // BN values comes here
-        console.log('BN values', result?.e);
-        // this.BNValues = result;
-        // this.checkBNsupport(result);
-      } else if (result?.e == "NFO") {
-        // strike price will come here
-        console.log('other ' , result?.e)
-        // this.strikeValues = result;
-        // this.setDynamicAlert(result)
-      } else {
-        // else as per syntax
-      }
-    }
-
-
-  });
   }
 
   // search the script name
@@ -172,7 +151,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
       });
   }
   ngOnInit() {
-    this.getRunningAlogs();
     // , routePath: '/backtestreports'
     // routePath: '/bnlevels'
     this.items = [
@@ -185,14 +163,31 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.activeItem = this.items[0];
     // load list of strike from service database
     this.customerService.getSelectedStrikes().then((customers) => {
-      console.log('customers', customers);
-      if (customers.data != null) this.collectionofStrikes = customers.data;
-      this.collectionofStrikes.map((strike: any) => {
-        this.getCloneValues(strike);
-      });
-      this.loading = false;
-      console.log(this.collectionofStrikes);
-    });
+     
+      if (customers.data != null) {
+       // Get the current date
+const currentDate = new Date();
+const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+       this.collectionofStrikes = customers.data;
+       this.collectionofStrikes.forEach( (eachStrike : any) => {
+        const itemDate = new Date(eachStrike.created_at);
+        const itemDateWithoutTime = new Date(itemDate.getFullYear(), itemDate.getMonth(), itemDate.getDate()); // Set time to 00:00:00
+      
+        // Compare the dates, excluding today
+        if (itemDateWithoutTime < today) {
+          eachStrike.hideStrikeinUI = true;
+        }
+       });
+       this.collectionofStrikes.map((strike: any) => {
+         this.getCloneValues(strike);
+       });
+       this.loading = false;
+     } 
+      },() => {
+        this.getRunningAlogs();
+      }
+      
+    );
     this.primengConfig.ripple = true;
 
     // this.priceLevelsForm?.get('rangeDates')?.valueChanges.subscribe((value: any) => {
@@ -889,13 +884,17 @@ export class HomeComponent implements OnInit, AfterViewInit {
     let T1 = strageryFormValues?.t1;
     let SL = parseFloat(strageryFormValues?.sl);
     let strateguniqueid = strageryFormValues?.strategyid;
+    strikeUniqueid = strageryFormValues?.tsym;
     let openPrice = object?.into;
-    let closePrice = parseFloat(object?.intc);
-    let highPrice = parseFloat(object?.inth);
+    // let closePrice = parseFloat(object?.intc);
+    // let highPrice = parseFloat(object?.inth);
+    // for websocket changing below 
+     let closePrice = parseFloat(object?.lp);
+    let highPrice = parseFloat(object?.lp);
     let lowPrice = object?.intl;
     // reveresedchidlforms.forEach((i: any) => {
       // option buy logic
-    if (!strageryFormValues.buytriggered) {
+    if (!strageryFormValues?.buytriggered) {
 
       // buy block insert objects 
      let buyObjects : any = {}
@@ -1026,7 +1025,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
         if (tokenValues?.data?.length != 0) {
           let B1 = tokenValues?.data[0]?.B1;
           let T1 = tokenValues?.data[0]?.T1;
-          console.log('updated t 1 ' , T1)
           let SL = tokenValues?.data[0]?.SL;
           let startdate = tokenValues?.data[0]?.start_date;
           let enddate = tokenValues?.data[0]?.end_date;
@@ -1035,6 +1033,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
           let serverSide_B1_trigger_value = tokenValues?.data[0]?.buytriggered;
           let serverSide_T1_trigger_value = tokenValues?.data[0]?.selltriggered;
           let serverSide_SL_trigger_value = tokenValues?.data[0]?.sltriggered;
+          let placeorderstrikename = tokenValues?.data[0]?.tsym;
           // this.getChartDataByMin(price, startdate, enddate, B1, T1);
           let pricelevelobject = {
             strategyid: childStrategyId?.id,
@@ -1048,6 +1047,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
             selltriggered: serverSide_T1_trigger_value ? serverSide_T1_trigger_value : false,
             sltriggered: serverSide_SL_trigger_value ? serverSide_SL_trigger_value : false,
             strategy_id: id,
+            tsym:placeorderstrikename
             // b1serervalue : serverSide_B1_trigger_value
           }
           // const newArray: any[] = [pricelevelobject]; // Create a new empty array
@@ -1079,7 +1079,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   // pause algo mean stop the trade running on this condition
   pause: boolean = false;
   pauseAlgo(strike: any) {
-    console.log('strike' , strike?.token)
+    console.log('pause' , strike?.token)
     this.supabase.updateToStrikePrice({
       s_running_status: !strike?.isRunning,
       token: strike?.id
@@ -1170,7 +1170,19 @@ export class HomeComponent implements OnInit, AfterViewInit {
       // Action for strings starting with "b"
       console.log("String starts with 'N'");
       return 50;
-    } else {
+    }
+    else if (myString.charAt(0) === "F") {
+      // Action for strings starting with "b"
+      console.log("String starts with 'N'");
+      return 40;
+    }
+    else if (myString.charAt(0) === "S") {
+      // Action for strings starting with "b"
+      console.log("String starts with 'N'");
+      return 10;
+    }
+    
+    else {
       // Default action for other cases
       console.log("String starts with a letter other than 'a' or 'b'");
       return 0;
@@ -1215,7 +1227,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
         e?.data.map( ( cloneitem : any ) => {
 
           if (cloneitem?.s_running_status) {
-             this.startAlgo(cloneitem?.token, cloneitem?.id , cloneitem?.tsym, cloneitem?.dname)
+             // this.startAlgo(cloneitem?.token, cloneitem?.id , cloneitem?.tsym, cloneitem?.dname)
+             this.startAlgoByWebSocket(cloneitem?.token, cloneitem?.id , cloneitem?.tsym, cloneitem?.dname)
         }
       })
       }
@@ -1239,7 +1252,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   // related to websocket workaround
   
   WebSocketAuth() {
-    console.log("new message from client to websocket: ", this.message);
+    console.log("starting of web socket ", this.message);
     this.depthData.messages.next(this.message);
     // this.getBankNiftySpecificStrickeRate('26009');
   }
@@ -1280,4 +1293,94 @@ export class HomeComponent implements OnInit, AfterViewInit {
     };
     this.websocketconnection.getDataFromWS(strickobject);
   }
-}
+
+
+  startAlgoByWebSocket(token: any, strategy_id: number, dname : string, strikename: string) {
+    this.WebSocketAuth();
+     // this.webworker.startWorker();
+    // 10000 == 1 sec
+    this.getBankNiftySpecificStrickeRateTouchline(token);
+   
+    console.log('new logic check start api call on parent strike click', token)
+     this.eachchildvalue.filter((strategyObject: any) => {
+      if (strategyObject?.strategy_id == strategy_id) {
+        strategyObject.isRunning = true;
+        this.supabase.updateToStrikePrice({
+          s_running_status : true,
+          token: strategyObject?.strategy_id
+        });
+        return strategyObject;
+      } else {
+        return;
+      }
+    });
+    // on play click show and hide pause or play button logic
+    this.findAndUpdateCollectionArray(token , strategy_id, true)
+    this.subcribeToWebSocketResponse(strategy_id, dname,strikename);
+      }
+
+      subcribeToWebSocketResponse(strategy_id: number, dname : string, strikename: string) {
+       
+            const subscription  : any =  this.depthData.messages.subscribe((result: any) => {
+              console.log('strategy_id' , strategy_id , dname, strikename);
+
+              this.dataService.b1$.subscribe((updatedB1value : any) => {
+                this.eachchildvalue.forEach((strategyid:any) => {
+                   if (strategyid.strategy_id == updatedB1value?.strategy_id ) {
+                    strategyid.b1 = updatedB1value?.B1;
+                    strategyid.t1 = updatedB1value?.T1;
+                    strategyid.sl = updatedB1value?.SL;
+                    
+                   }
+                })
+                  });
+      
+      
+                  // let eachstratey = this.eachchildvalue.filter((strategyObject: any) => {
+                  //   if (strategyObject?.strategy_id == strategy_id) {
+                  //     return strategyObject;
+                  //   } else {
+                  //     return;
+                  //   }
+                  // });
+                 
+          console.log('nfo check' , result) 
+
+          if (result) {
+            if (result?.e == "NSE") {
+              // BN values comes here
+              console.log('BN values', result?.e);
+              // this.BNValues = result;
+              // this.checkBNsupport(result);
+            } else if (result?.e == "NFO") {
+              // strike price will come here
+              console.log('eachchildvalue' , this.eachchildvalue)
+              let eachstratey = this.eachchildvalue.filter((strategyObject: any) => {
+                if (result?.tk && result.tk == strategyObject?.scriptid ){
+                  console.log('runeachtime' , strategyObject)
+                  this.handlePlaceOrder(result,
+                    strategyObject , dname , strikename);
+                } else {
+                  return;
+                }
+              });
+     
+              
+              // this.strikeValues = result;
+              // this.setDynamicAlert(result)
+            } else {
+              // else as per syntax
+            }
+          //   const subscriptionData = {
+          //     subscription: subscription,
+          //     strategy_id: strategy_id
+          //   };
+          //  this.subscriptions.push(subscriptionData);
+          }
+      
+      
+        });
+      }
+    }
+  
+

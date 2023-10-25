@@ -28,7 +28,7 @@
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-strike let-expanded="expanded">
-    <tr class="p-selectable-row">
+    <tr class="p-selectable-row" *ngIf="!strike.hideStrikeinUI">
       <td>
         <button
           type="button"
@@ -159,7 +159,7 @@
                       pRipple
                       icon="pi pi-play"
                       class="p-button-rounded p-button-success mr-2"
-                      (click)="startAlgo(cloneitem?.token, cloneitem?.id , cloneitem?.tsym, cloneitem?.dname)"
+                      (click)="startAlgoByWebSocket(cloneitem?.token, cloneitem?.id , cloneitem?.tsym, cloneitem?.dname)"
                     ></button>
                     <button *ngIf="cloneitem?.isRunning"
                       pButton
