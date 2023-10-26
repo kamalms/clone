@@ -8,6 +8,12 @@
 >
 </p-autoComplete>
 <p-dropdown [options]="cities" [(ngModel)]="selectedCity" optionLabel="name"></p-dropdown>
+<button
+label="yesterday data"
+type="button"
+pButton
+pRipple (click)="showYesterDateData()"
+></button>
 <p-toast></p-toast>
 <p-table
   #dt
@@ -205,6 +211,16 @@
                                   <td colspan="5">Total Positive Sum</td>
                                   <td></td>
                                   <td class="text-right">{{ totalPositiveSum }}</td>
+                                </tr>
+                                <tr class="total-row">
+                                  <td colspan="5">Profit Or Loss Points  -</td>
+                                  <td></td>
+                                   <td class="text-right">
+                                  <!-- {{ (+totalPositiveSum) - (+totalNegativeSum) }} -->
+                                    {{ (+totalPositiveSum) + (+totalNegativeSum) }}
+
+                                </td>
+                                    
                                 </tr>
                               </ng-template>
                               <ng-template pTemplate="emptymessage">

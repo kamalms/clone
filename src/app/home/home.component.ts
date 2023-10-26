@@ -150,6 +150,28 @@ export class HomeComponent implements OnInit, AfterViewInit {
         this.suggestions = scriptsResult.values;
       });
   }
+
+  showYesterDateData() {
+    const today = new Date(); // Current date and time
+today.setHours(0, 0, 0, 0); // Set time to 00:00:00
+
+const yesterday = new Date(today);
+yesterday.setDate(yesterday.getDate() - 1); // Set the date to yesterday
+
+this.collectionofStrikes.forEach((eachStrike: any) => {
+  const itemDate = new Date(eachStrike.created_at);
+  const itemDateWithoutTime = new Date(itemDate.getFullYear(), itemDate.getMonth(), itemDate.getDate()); // Set time to 00:00:00
+
+  // Compare the dates
+  if (itemDateWithoutTime.getTime() >= yesterday.getTime() && itemDateWithoutTime.getTime() < today.getTime()) {
+    eachStrike.hideStrikeinUI = false;
+  } else {
+    eachStrike.hideStrikeinUI = true;
+  }
+});
+// public static APIKEY = "22184d71bc3c4567bae04f1b485b53ae";
+// public static SECRETKEY = "2023.15c01a80046f44948f272c3144abdc3bb1b7f5047713cf6c";
+  }
   ngOnInit() {
     // , routePath: '/backtestreports'
     // routePath: '/bnlevels'
