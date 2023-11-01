@@ -1,0 +1,102 @@
+    <div>
+        <style>
+            table {
+              font-family: Arial, sans-serif;
+              border-collapse: collapse;
+              width: 100%;
+            }
+            
+            td, th {
+              border: 1px solid #dddddd;
+              text-align: left;
+              padding: 8px;
+            }
+            
+            tr:nth-child(even) {
+              background-color: #f2f2f2;
+            }
+            </style>
+      
+        
+        <table>
+            <tr>
+                <th>Strategy id </th>
+                <th> Script name</th>
+                <th>B1</th>
+                <th>T1 </th>
+                <th> SL</th>
+                
+              </tr>
+          <tr>
+            <td>   {{config.data?.strategyid?.id}}</td>
+            <td>  {{config.data?.strategyid?.dname}}</td>
+            <td>  {{config.data?.strategyid?.b1}}</td>
+            <td>  {{config.data?.strategyid?.t1}}</td>
+            <td>  {{config.data?.strategyid?.sl}}</td>
+          </tr>
+         
+        </table>
+        <div style="padding: 2rem;">
+            <h3>
+                Execution will happen in range of {{config.data?.strategyid?.b1 - 5 }} to {{config.data?.strategyid?.b1}}
+               
+            </h3>
+            <h4>
+                Strategy Created @ {{config.data?.strategyid?.strategyCreatedTime | customDateFormat}}
+            </h4>
+        </div>
+
+    </div>
+      <p-table [value]="backTestingReport" selectionMode="single"  [paginator]="true" [rows]="10">
+          <ng-template pTemplate="header">
+              <tr>
+                  <th>No of items ({{backTestingReport?.length}}) </th>
+                  <th >order_id</th>
+                  <th>Time and Date</th>
+                  <th >B1</th>
+                  <th>B/S</th>
+                  <th>SL triggered</th>
+                  <th>Points +/-</th>
+              </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-product let-rowIndex="rowIndex">
+              <tr [pSelectableRow]="rowData">
+                  <td>{{rowIndex + 1}} </td>
+                  <td>{{product.order_id}}</td>
+                  <td>{{product?.created_at  | customDateFormat }}</td>
+                  <td>{{product.B1}}</td>
+                  <td>{{product?.order_type}}</td>
+                  <td>{{product?.sl_trigger}}</td>
+                  <td>{{product?.pointsCollected}}</td>
+              </tr>
+            
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <tr class="total-row">
+              <td colspan="5">Total Negative Sum</td>
+              <td></td>
+              <td class="text-right">{{ totalNegativeSum }}</td>
+            </tr>
+            <tr class="total-row">
+              <td colspan="5">Total Positive Sum</td>
+              <td></td>
+              <td class="text-right">{{ totalPositiveSum }}</td>
+            </tr>
+            <tr class="total-row">
+              <td colspan="5">Profit Or Loss Points  -</td>
+              <td></td>
+               <td class="text-right">
+              <!-- {{ (+totalPositiveSum) - (+totalNegativeSum) }} -->
+                {{ (+totalPositiveSum) + (+totalNegativeSum) }}
+
+            </td>
+                
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr class="total-row">
+              <td colspan="8">No trade is executed in this scenorio</td>
+            </tr>
+          </ng-template>
+      </p-table>
+      <div> </div>

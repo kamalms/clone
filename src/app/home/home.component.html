@@ -53,16 +53,17 @@ pRipple (click)="showYesterDateData()"
       <td>{{ strike?.tsym }}</td>
       <td>{{ strike?.optt }}</td>
       <td>
+        <!-- parent p table buttons -->
         <div class="flex">
           <button
             pButton
             pRipple
             icon="pi pi-trash"
             class="p-button-rounded p-button-danger mr-2"
-            (click)="deleteStrike(strike)"
+            
           ></button>
 
-          <!-- <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2 "
+          <!-- (click)="deleteStrike(strike)"  <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2 "
                 (click)="setTarget(strike)"></button> -->
 
           <button
@@ -94,6 +95,7 @@ pRipple (click)="showYesterDateData()"
     <tr>
       <td colspan="7">
         <div class="p-3">
+          <!-- inner P table  -->
           <p-table [value]="strike.cloneForm" dataKey="id">
             <ng-template pTemplate="header">
               <tr>
@@ -174,66 +176,7 @@ pRipple (click)="showYesterDateData()"
                       class="p-button-rounded p-button-warning mr-2"
                       (click)="pauseAlgo(cloneitem)"
                     ></button>
-                    <div>
-                      <p-overlayPanel #op [dismissable]="true" [showCloseIcon]="true" [style]="{width: '800px'}">
-                        <ng-template pTemplate>
-                          <p-table [value]="backTestingReport" selectionMode="single"  [paginator]="true" [rows]="10">
-                              <ng-template pTemplate="header">
-                                  <tr>
-                                      <th>No of items ({{backTestingReport?.length}}) </th>
-                                      <th >order_id</th>
-                                      <th>Time and Date</th>
-                                      <th >B1</th>
-                                      <th>B/S</th>
-                                      <th>SL triggered</th>
-                                      <th>Points +/-</th>
-                                  </tr>
-                              </ng-template>
-                              <ng-template pTemplate="body" let-rowData let-product let-rowIndex="rowIndex">
-                                  <tr [pSelectableRow]="rowData">
-                                      <td>{{rowIndex + 1}} </td>
-                                      <td>{{product.order_id}}</td>
-                                      <td>{{product?.created_at  | customDateFormat }}</td>
-                                      <td>{{product.B1}}</td>
-                                      <td>{{product?.order_type}}</td>
-                                      <td>{{product?.sl_trigger}}</td>
-                                      <td>{{product?.pointsCollected}}</td>
-                                  </tr>
-                                
-                              </ng-template>
-                              <ng-template pTemplate="footer">
-                                <tr class="total-row">
-                                  <td colspan="5">Total Negative Sum</td>
-                                  <td></td>
-                                  <td class="text-right">{{ totalNegativeSum }}</td>
-                                </tr>
-                                <tr class="total-row">
-                                  <td colspan="5">Total Positive Sum</td>
-                                  <td></td>
-                                  <td class="text-right">{{ totalPositiveSum }}</td>
-                                </tr>
-                                <tr class="total-row">
-                                  <td colspan="5">Profit Or Loss Points  -</td>
-                                  <td></td>
-                                   <td class="text-right">
-                                  <!-- {{ (+totalPositiveSum) - (+totalNegativeSum) }} -->
-                                    {{ (+totalPositiveSum) + (+totalNegativeSum) }}
-
-                                </td>
-                                    
-                                </tr>
-                              </ng-template>
-                              <ng-template pTemplate="emptymessage">
-                                <tr class="total-row">
-                                  <td colspan="8">No trade is executed in this scenorio</td>
-                                </tr>
-                              </ng-template>
-                          </p-table>
-                          <div> </div>
-                      </ng-template>
-                      </p-overlayPanel>
-                      
-                      <button type="text" pButton label="Detail" (click)="op.toggle($event);getBackTestingData(cloneitem)"></button>
+                    <div><button type="text" pButton label="Detail" (click)="getBackTestingData(cloneitem)"></button>
                     </div>
                   </div>
                 </td>

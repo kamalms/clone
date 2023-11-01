@@ -10,7 +10,7 @@ export class CustomDateFormatPipe implements PipeTransform {
     const datePipe = new DatePipe('en-US');
 
     const formattedDate = datePipe.transform(date, 'MMM dd, yyyy');
-    const formattedTime = datePipe.transform(date, 'hh:mm');
+    const formattedTime = datePipe.transform(date, 'hh:mm a');
 
     return `${formattedDate} ${formattedTime}`;
   }

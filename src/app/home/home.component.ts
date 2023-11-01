@@ -28,6 +28,8 @@ import { DatasharedService } from '../datashared.service';
 import { interval, switchMap, take, map, share } from 'rxjs';
 import { DepthDataService } from '../depth-data.service';
 import { WebSocketService } from '../web-socket.service';
+import { DialogService } from 'primeng/dynamicdialog';
+import { BackTestDetailComponent } from '../back-test-detail/back-test-detail.component';
 interface AutoCompleteCompleteEvent {
   originalEvent: Event;
   query: string;
@@ -36,7 +38,7 @@ interface AutoCompleteCompleteEvent {
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
-  providers: [CustomerService, HttpClient, MessageService],
+  providers: [CustomerService, HttpClient, MessageService, DialogService],
 })
 export class HomeComponent implements OnInit, AfterViewInit {
   @Input()
@@ -123,7 +125,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private flattradeService: CommonService,
     private primengConfig: PrimeNGConfig,
     public depthData: DepthDataService,
-    public websocketconnection: WebSocketService
+    public websocketconnection: WebSocketService,
+    public dialogService: DialogService
   ) { 
     this.cities = [
       {name: '1 M', code: 'NY'},
@@ -137,7 +140,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   // search the script name
   search(event: AutoCompleteCompleteEvent) {
-    console.log(event);
     let getToken = this.flattradeService.getUserObjectFromLocalStorage();
     let bodyOfuserDetails = {};
     const jKey = getToken?.token;
@@ -239,14 +241,12 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
     console.log(e);
     // insert into market watch table
     this.supabase.insertMarketWatch(e).then((e: any) => {
-      console.log('inserted ', e);
       if (e?.data) this.collectionofStrikes.push(e?.data[0]);
     });
   }
 
   // main form entry
   setTarget(strike: any) {
-    console.log('rangeofDates', strike);
     // this.selectedStrikeLevel = [];
     this.disableSave = false;
     this.selectedStrikeLevel = { ...strike };
@@ -621,6 +621,7 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
                 b1: tokenvalues?.B1,
                 t1: tokenvalues?.T1,
                 sl: tokenvalues?.SL,
+                strategyCreatedTime :tokenvalues?.created_at,
                 isRunning : tokenvalues?.s_running_status ?  tokenvalues?.s_running_status : false
               });
             });
@@ -721,7 +722,6 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
   }
 
   getReports(tabIndex: number, cloneitem: any): void {
-    console.log('get reporst', cloneitem);
 
     // this.router.navigate(['/backtestreports']);
     // Ensure tabIndex is within valid bounds
@@ -1203,6 +1203,11 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
       console.log("String starts with 'N'");
       return 10;
     }
+    else if (myString.charAt(0) === "M") {
+      // Action for strings starting with "b"
+      console.log("String starts with 'N'");
+      return 75;
+    }
     
     else {
       // Default action for other cases
@@ -1244,7 +1249,6 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
   getRunningAlogs() 
   {
     this.supabase.getActivatedStrategyFromTable().then((e: any) => {
-      console.log('get running algos ', e);
       if (e && e?.data.length > 0) {
         e?.data.map( ( cloneitem : any ) => {
 
@@ -1274,7 +1278,6 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
   // related to websocket workaround
   
   WebSocketAuth() {
-    console.log("starting of web socket ", this.message);
     this.depthData.messages.next(this.message);
     // this.getBankNiftySpecificStrickeRate('26009');
   }
@@ -1344,7 +1347,6 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
       subcribeToWebSocketResponse(strategy_id: number, dname : string, strikename: string) {
        
             const subscription  : any =  this.depthData.messages.subscribe((result: any) => {
-              console.log('strategy_id' , strategy_id , dname, strikename);
 
               this.dataService.b1$.subscribe((updatedB1value : any) => {
                 this.eachchildvalue.forEach((strategyid:any) => {
@@ -1376,10 +1378,8 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
               // this.checkBNsupport(result);
             } else if (result?.e == "NFO") {
               // strike price will come here
-              console.log('eachchildvalue' , this.eachchildvalue)
               let eachstratey = this.eachchildvalue.filter((strategyObject: any) => {
                 if (result?.tk && result.tk == strategyObject?.scriptid ){
-                  console.log('runeachtime' , strategyObject)
                   this.handlePlaceOrder(result,
                     strategyObject , dname , strikename);
                 } else {
@@ -1404,65 +1404,16 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
         });
       }
 
-      backTestingReport : any;
-
-              
-     totalNegativeSum : any = 0;
-     totalPositiveSum: any = 0;
-  getBackTestingData(strategyid: any) {
-    console.log('strategyid', strategyid);
-    this.totalNegativeSum = 0;
-    this.totalPositiveSum = 0;
-    this.supabase.getPriceValuesFromBacktesting(strategyid?.id).then((backTestingData: any) => {
-      console.log('back tested reports', backTestingData)
-      this.backTestingReport = backTestingData?.data;
-      if (this.backTestingReport && this.backTestingReport.length > 0) {
-        // calculate the points collected
-        let entryPoint = null;
-        let pointsCollected = 0;
-        let positiveSum = 0;
-        let negativeSum = 0;
       
-        for (let i = 0; i < this.backTestingReport.length; i++) {
-          if (this.backTestingReport[i].order_type) {
-            entryPoint = this.backTestingReport[i].B1;
-            pointsCollected = 0; // Reset pointsCollected for a new set
-          } else if (entryPoint !== null) {
-            const exitPoint = this.backTestingReport[i].B1;
-
-            const currentPoints = exitPoint - entryPoint;
-            pointsCollected += currentPoints;
-
-           // pointsCollected += exitPoint - entryPoint;
-            this.backTestingReport[i].pointsCollected = currentPoints.toFixed(2);
-            
-            if (currentPoints > 0) {
-              positiveSum += currentPoints;
-              this.backTestingReport[i].positiveSum = positiveSum.toFixed(2);
-              this.backTestingReport[i].negativeSum = negativeSum.toFixed(2);
-              this.totalPositiveSum += currentPoints; // Accumulate the positiveSum value
-          } else {
-              negativeSum += currentPoints;
-              this.backTestingReport[i].positiveSum = positiveSum.toFixed(2);
-              this.backTestingReport[i].negativeSum = negativeSum.toFixed(2);
-              this.totalNegativeSum += currentPoints; // Accumulate the negativeSum value
-          }
-            entryPoint = null;
-          }
-        }
-        if (this.totalNegativeSum ) {
-          this.totalNegativeSum = this.totalNegativeSum?.toFixed(2);
-        }
-       if (this.totalPositiveSum) {
-        this.totalPositiveSum = this.totalPositiveSum?.toFixed(2);
-       }
-       
-        console.log("Total negativeSum:", this.totalNegativeSum );
-      };
-
-      // now this.backTestingReport have pointsCollected value 
-      console.log('this backtesting data' , this.backTestingReport)
-    })
+  getBackTestingData(strategyid: any) {
+    console.log('cline' ,strategyid)
+    const ref = this.dialogService.open(BackTestDetailComponent, {
+      header: 'Back Testing Report',
+      dismissableMask: true,
+      width: '70%',  data: {
+        strategyid: strategyid
+    },
+  });
   }
    negativeSumLastIndex = null;
     }

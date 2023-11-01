@@ -32,6 +32,31 @@ export class WebSocketService{
         }
       }
     };
+    ws.onopen = () => {
+      console.log('WebSocket connected');
+      this.startHeartbeat(ws);
+    };
+
+    ws.onmessage = (event) => {
+      console.log('Received message: ', event.data);
+      // Add your message handling logic here
+    };
+
+    ws.onclose = (event) => {
+      console.log('WebSocket disconnected');
+    
+      this.stopHeartbeat(); // Stop the heartbeat on disconnection
+      this.close();
+      // Try to reconnect after a short delay
+      setTimeout(() => {
+        this.connect("wss://piconnect.flattrade.in/PiConnectWSTp/");
+      },10000); // Adjust the delay as needed
+    };
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error: ', error);
+    };
+
     return Subject.create(observer, observable);
   }
 
@@ -45,5 +70,17 @@ export class WebSocketService{
 
   streamData () {
 
+  }
+  private heartbeatInterval: any;
+  private startHeartbeat(ws : any): void {
+    this.heartbeatInterval = setInterval(() => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send('heartbeat');
+      }
+    }, 5000); // Adjust the heartbeat interval as needed
+  }
+  
+  private stopHeartbeat(): void {
+    clearInterval(this.heartbeatInterval);
   }
 }

@@ -3,6 +3,7 @@ import { SupabaseService } from './supabase.service';
 import { CommonService } from './common.service';
 import { FlatTradeURLs } from './app.constants';
 import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 const shajs = require('sha.js')
 @Component({
   selector: 'app-root',
@@ -81,7 +82,7 @@ export class AppComponent implements OnInit {
     const codeFromRequest = urlParams.get('code');
 
     // api key + requested code + api secret
-    let combinationOfApikeyCodeSecretKey = FlatTradeURLs.APIKEY + codeFromRequest + FlatTradeURLs.SECRETKEY;
+    let combinationOfApikeyCodeSecretKey = environment.APIKEY + codeFromRequest + environment.SECRETKEY;
    // console.log('combinationOfApikeyCodeSecretKey', combinationOfApikeyCodeSecretKey);
 
     let hashvalue;
@@ -102,11 +103,11 @@ export class AppComponent implements OnInit {
 
   getApiToken(codeFromRequest: string, hashvalue: string) {
     let bodyobject = {
-      "api_key": FlatTradeURLs.APIKEY,
+      "api_key": environment.APIKEY,
       "request_code": codeFromRequest,
       "api_secret": hashvalue
     };
-    this.httpClient.post<any>(FlatTradeURLs.GETTOKENURL,
+    this.httpClient.post<any>(environment.GETTOKENURL,
       bodyobject).subscribe((tokenData) => {
         console.log('tokenData?.token', tokenData)
         if (tokenData?.token)
