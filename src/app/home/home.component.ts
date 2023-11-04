@@ -633,7 +633,7 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
             this.collectionofStrikes[index].cloneForm = cloneItemsofArray;
             this.collectionofStrikes[index]?.cloneForm.map((childStrategy: any) => {
               this.initAlgoRealTime(childStrategy);
-              this.getReportsData(childStrategy , this.collectionofStrikes[index])
+              this.getReportsData(childStrategy , this.collectionofStrikes[index]);
             });
             this.showSuccess('info', 'Success', 'Strategy Added');      
           } else {
@@ -1422,7 +1422,7 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
   }
   
   getReportsData(strategyid: StrikeItemForUI, indexOfCollectionOfStrick : any) {
-    let backTestingReport = [];
+    let backTestingReport : any = [];
       this.supabase.getPriceValuesFromBacktesting(strategyid?.id).then((backTestingData: any) => {
         backTestingReport = backTestingData?.data;
         this.totalNegativeSum = 0;
@@ -1458,13 +1458,23 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
             }
               entryPoint = null;
             }
+            //adding each strategies positive and negative total to array
+            indexOfCollectionOfStrick.cloneForm.filter((innerStrategyArray : any) => {
+              if (innerStrategyArray?.id == backTestingReport[i].strategy_id){
+                if ( this.totalNegativeSum !== null && this.totalNegativeSum !== undefined  ) {
+                  innerStrategyArray.totalNegativeSum  = Number(this.totalNegativeSum).toFixed(2);
+               }
+              if (this.totalPositiveSum !== null && this.totalPositiveSum !== undefined) {
+                innerStrategyArray.totalPositiveSum = Number(this.totalPositiveSum).toFixed(2);
+              }
+              }
+            })
+
+           
           }
-          if ( this.totalNegativeSum !== null && this.totalNegativeSum !== undefined  ) {
-             indexOfCollectionOfStrick.totalNegativeSum  = Number(this.totalNegativeSum).toFixed(2);
-          }
-         if (this.totalPositiveSum !== null && this.totalPositiveSum !== undefined) {
-          indexOfCollectionOfStrick.totalPositiveSum = Number(this.totalPositiveSum).toFixed(2);
-         }
+          // after cloneForm array pushed with totalNegativeSum, and totalPositiveSum values 
+          // we now have ability to calculate total P & L so below do that one
+          this.calculateParentStrikePoints(indexOfCollectionOfStrick.cloneForm , indexOfCollectionOfStrick);
         };
       })
   }
@@ -1473,6 +1483,43 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
       eachStrike.hideStrikeinUI = false;
     });
   }
+
+  calculateParentStrikePoints ( cloneForm :any  , parentArray : any) {
+    let totalPositiveSum = 0 ;
+    let totalNegativeSum = 0 ;
+    cloneForm.forEach((eachStrategy: any) => {
+      if (!isNaN(eachStrategy.totalPositiveSum)) {
+        totalPositiveSum += Number(eachStrategy.totalPositiveSum);
+      }
+      if (!isNaN(eachStrategy.totalNegativeSum)) {
+        totalNegativeSum += Number(eachStrategy.totalNegativeSum);
+      }
+    });
+      if ( totalNegativeSum !== null && totalNegativeSum !== undefined  ) {
+        parentArray.totalNegativeSum  = Number(totalNegativeSum).toFixed(2);
+          }
+         if (totalPositiveSum !== null && totalPositiveSum !== undefined) {
+          parentArray.totalPositiveSum = Number(totalPositiveSum).toFixed(2);
+         }
+         this.currentPoints();
+  }
+   currentPandL : any = 0;
+   profit : any = 0;
+   loss : any = 0;
+    currentPoints() {
+
+      this.currentPandL = 0;
+      this.profit = 0 ; 
+      this.loss = 0; 
+      this.collectionofStrikes.forEach( (eachStrike : any) => {
+        if (!isNaN(eachStrike.totalPositiveSum)) {
+          this.profit += Number(eachStrike.totalPositiveSum);
+        }
+        if (!isNaN(eachStrike.totalNegativeSum)) {
+          this.loss += Number(eachStrike.totalNegativeSum);
+        }
+      });
+    }
     }
   
 

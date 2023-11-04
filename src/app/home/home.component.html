@@ -1,4 +1,37 @@
 <p-progressSpinner *ngIf="blockUI"></p-progressSpinner>
+<div>
+  Upto now all Positive Points  
+  {{ (+profit) + (+loss) }}
+  <style>
+    table {
+      font-family: Arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+  
+    th, td {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+  
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+  </style>
+  <table>
+    <tr>
+      <th>Total</th>
+      <th>Profit</th>
+      <th> Loss </th>
+    </tr>
+    <tr>
+      <td>{{ (+profit) + (+loss) }}</td>
+      <td>{{profit}}</td>
+      <td>{{loss}}</td>
+    </tr>
+  </table>
+</div>
 <p-autoComplete
   [(ngModel)]="selectedStrike"
   [suggestions]="suggestions"
@@ -32,7 +65,7 @@ pRipple (click)="showAllData()"
   <ng-template pTemplate="header">
     <tr>
       <th style="width: 3rem"></th>
-      <th>Id</th>
+      <th pSortableColumn="id">Id <p-sortIcon field="id"></p-sortIcon></th>
       <th pSortableColumn="name">Strick</th>
       <th>Name</th>
       <th>Option</th>
@@ -127,6 +160,9 @@ pRipple (click)="showAllData()"
                 <th>T1</th>
                 <th>SL</th>
                 <th>Running Status</th>
+                <th>Points Collected</th>
+                <th> Positives + </th>
+                <th> Negative SL - </th>
                 <th style="width: 8rem"></th>
               </tr>
             </ng-template>
@@ -155,6 +191,18 @@ pRipple (click)="showAllData()"
                   Not started or stoped
                 </div>
                 </td>
+                <td>
+                  {{ (+cloneitem?.totalPositiveSum) + (+cloneitem?.totalNegativeSum) }}
+                 
+                </td>
+                <td>
+                  {{cloneitem?.totalPositiveSum}}
+                 
+                </td>
+                <td>
+                  {{cloneitem?.totalNegativeSum}}
+                </td>
+               
                 <td>
                   <div class="flex">
                     <button
