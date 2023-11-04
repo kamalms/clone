@@ -202,7 +202,7 @@ export class SupabaseService {
 
   //back  testing table interactions
 
-  async getPriceValuesFromBacktesting(strategy_id: string) {
+  async getPriceValuesFromBacktesting(strategy_id: string | number) {
     return this.supabase
       .from('backtesting')
       .select('*')

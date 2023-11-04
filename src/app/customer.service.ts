@@ -17,13 +17,15 @@ export interface BNStrikeItem {
   created_at: string;
   id: number;
   exch: string | null;
-  token: string;
+  token: number;
   tsym: string;
   weekly: string;
   dname: string;
   optt: string;
   instname: string | null;
   cloneForm?: [] | any;
+  totalNegativeSum?: number;
+  totalPositiveSum?:number;
 }
 
 export interface Customer {

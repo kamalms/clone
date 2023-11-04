@@ -14,6 +14,12 @@ type="button"
 pButton
 pRipple (click)="showYesterDateData()"
 ></button>
+<button
+label="Show All Data"
+type="button"
+pButton
+pRipple (click)="showAllData()"
+></button>
 <p-toast></p-toast>
 <p-table
   #dt
@@ -26,11 +32,14 @@ pRipple (click)="showYesterDateData()"
   <ng-template pTemplate="header">
     <tr>
       <th style="width: 3rem"></th>
+      <th>Id</th>
       <th pSortableColumn="name">Strick</th>
       <th>Name</th>
       <th>Option</th>
-
-      <th style="width: 8rem"></th>
+      <th>Points Collected</th>
+      <th> Positives + </th>
+      <th> Negative SL - </th>
+      <!-- <th style="width: 8rem"></th> -->
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-strike let-expanded="expanded">
@@ -45,13 +54,24 @@ pRipple (click)="showYesterDateData()"
           [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
         ></button>
       </td>
-      <td>
+      <!-- <td>
         <p-tableCheckbox [value]="strike"></p-tableCheckbox>
-      </td>
-
+      </td> -->
+      <td>{{ strike?.id }}</td>
       <td>{{ strike.dname }}</td>
       <td>{{ strike?.tsym }}</td>
       <td>{{ strike?.optt }}</td>
+      <td>
+        {{ (+strike?.totalPositiveSum) + (+strike?.totalNegativeSum) }}
+       
+      </td>
+      <td>
+        {{strike?.totalPositiveSum}}
+       
+      </td>
+      <td>
+        {{strike?.totalNegativeSum}}
+      </td>
       <td>
         <!-- parent p table buttons -->
         <div class="flex">

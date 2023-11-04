@@ -30,6 +30,7 @@ import { DepthDataService } from '../depth-data.service';
 import { WebSocketService } from '../web-socket.service';
 import { DialogService } from 'primeng/dynamicdialog';
 import { BackTestDetailComponent } from '../back-test-detail/back-test-detail.component';
+import { StrikeItemForUI } from '../models/strikeItemForUI';
 interface AutoCompleteCompleteEvent {
   originalEvent: Event;
   query: string;
@@ -114,6 +115,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
     "source": "API",
     "susertoken": ""
   }
+  // added for feature - show overall points collected by hole strike all child strategies overall p or l points
+  totalNegativeSum : any = 0;
+  totalPositiveSum: any = 0;
   constructor(
     private dataService: DatasharedService,
     private elementRef: ElementRef,
@@ -628,7 +632,8 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
             // cloneForm is array created for child ptable list
             this.collectionofStrikes[index].cloneForm = cloneItemsofArray;
             this.collectionofStrikes[index]?.cloneForm.map((childStrategy: any) => {
-              this.initAlgoRealTime(childStrategy)
+              this.initAlgoRealTime(childStrategy);
+              this.getReportsData(childStrategy , this.collectionofStrikes[index])
             });
             this.showSuccess('info', 'Success', 'Strategy Added');      
           } else {
@@ -1415,7 +1420,59 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
     },
   });
   }
-   negativeSumLastIndex = null;
+  
+  getReportsData(strategyid: StrikeItemForUI, indexOfCollectionOfStrick : any) {
+    let backTestingReport = [];
+      this.supabase.getPriceValuesFromBacktesting(strategyid?.id).then((backTestingData: any) => {
+        backTestingReport = backTestingData?.data;
+        this.totalNegativeSum = 0;
+        this.totalPositiveSum = 0;
+        if (backTestingReport && backTestingReport.length > 0) {
+          // calculate the points collected
+          let entryPoint = null;
+          let pointsCollected = 0;
+          let positiveSum = 0;
+          let negativeSum = 0;
+        
+          for (let i = 0; i < backTestingReport.length; i++) {
+            if (backTestingReport[i].order_type) {
+              entryPoint = backTestingReport[i].B1;
+              pointsCollected = 0; // Reset pointsCollected for a new set
+            } else if (entryPoint !== null) {
+              const exitPoint = backTestingReport[i].B1;
+  
+              const currentPoints = exitPoint - entryPoint;
+              pointsCollected += currentPoints;
+              backTestingReport[i].pointsCollected = currentPoints.toFixed(2);
+              
+              if (currentPoints > 0) {
+                positiveSum += currentPoints;
+                backTestingReport[i].positiveSum = positiveSum.toFixed(2);
+                backTestingReport[i].negativeSum = negativeSum.toFixed(2);
+                this.totalPositiveSum += currentPoints; // Accumulate the positiveSum value
+            } else {
+                negativeSum += currentPoints;
+                backTestingReport[i].positiveSum = positiveSum.toFixed(2);
+                backTestingReport[i].negativeSum = negativeSum.toFixed(2);
+                this.totalNegativeSum += currentPoints; // Accumulate the negativeSum value
+            }
+              entryPoint = null;
+            }
+          }
+          if ( this.totalNegativeSum !== null && this.totalNegativeSum !== undefined  ) {
+             indexOfCollectionOfStrick.totalNegativeSum  = Number(this.totalNegativeSum).toFixed(2);
+          }
+         if (this.totalPositiveSum !== null && this.totalPositiveSum !== undefined) {
+          indexOfCollectionOfStrick.totalPositiveSum = Number(this.totalPositiveSum).toFixed(2);
+         }
+        };
+      })
+  }
+  showAllData() {
+    this.collectionofStrikes.forEach((eachStrike: any) => {
+      eachStrike.hideStrikeinUI = false;
+    });
+  }
     }
   
 
