@@ -77,6 +77,21 @@ pRipple (click)="filterbySelectedStrike()"
   styleClass="p-datatable-customers"
   [loading]="loading"
 >
+<!-- <ng-template pTemplate="caption">
+  <div class="p-d-flex p-ai-center p-jc-between">
+      <h5 class="p-m-0">Manage Products</h5>
+      <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+         
+
+          <input pInputText type="text" 
+          (input)=changehere($event)
+          (change)="changehere($event)"
+
+          placeholder="Search..." />
+      </span>
+  </div>
+</ng-template> -->
   <ng-template pTemplate="header">
     <tr>
       <th style="width: 3rem"></th>
@@ -181,7 +196,9 @@ pRipple (click)="filterbySelectedStrike()"
           <p-table [value]="strike.cloneForm" dataKey="id">
             <ng-template pTemplate="header">
               <tr>
-                <th>Unique ID</th>
+                
+                <th pSortableColumn="id">Unique ID <p-sortIcon field="id"></p-sortIcon></th>
+                <th>Created @ </th>
                 <th pSortableColumn="name">Strick</th>
                 <th>Name</th>
                 <th>Option</th>
@@ -199,6 +216,9 @@ pRipple (click)="filterbySelectedStrike()"
               <tr class="p-selectable-row">
                 <td>
                   <span style="font-weight: bold;"> {{ cloneitem.id }}</span>
+                </td>
+                <td>
+                  <span style="font-weight: bold;"> {{ cloneitem.strategyCreatedTime | customDateFormat }}</span>
                 </td>
                 <td>
                   {{ cloneitem.dname }}
@@ -481,4 +501,4 @@ pRipple (click)="filterbySelectedStrike()"
 <button (click)="getBNValuesByDepth()">getBNValuesBy Depth </button>
 <button (click)="getBNValuesByTouchLine()">getBNValues By TouchLine  </button>
 <button (click)="getBankNiftySpecificStrickeRate('56133')">strikce valuees by depth</button>
-<button (click)="getBankNiftySpecificStrickeRateTouchline('56133')">strikce valuees by touchline</button>
+<!-- <button (click)="getBankNiftySpecificStrickeRateTouchline('56133')">strikce valuees by touchline</button> -->

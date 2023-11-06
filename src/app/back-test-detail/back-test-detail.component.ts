@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SupabaseService } from '../supabase.service';
-import { DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'app-back-test-detail',
@@ -9,15 +9,26 @@ import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 })
 export class BackTestDetailComponent implements OnInit {
   backTestingReport : any;
-
-              
-     totalNegativeSum : any = 0;
-     totalPositiveSum: any = 0;
-  constructor( private readonly supabase: SupabaseService, public config: DynamicDialogConfig) { }
+  verified : string = '';
+  totalNegativeSum : any = 0;
+  totalPositiveSum: any = 0;
+  constructor( private readonly supabase: SupabaseService, public config: DynamicDialogConfig, public ref: DynamicDialogRef) { 
+    this.ref.onClose.subscribe((data) => {
+      let dataFromForm = {
+        order_id : this.config.data?.strategyid?.id,
+        verified : this.verified
+      }
+      this.supabase.insertVerificationData(dataFromForm).then((d : any) => {
+        console.log('d' , d )
+      })
+      // Add your logic here to handle data before closing the dialog
+    });
+  }
 
   ngOnInit(): void {
      //id: this.config.id
     this.getBackTestingData(this.config.data?.strategyid);
+    this.getVerificationDataById();
   }
 
   getBackTestingData(strategyid: any) {
@@ -73,4 +84,12 @@ export class BackTestDetailComponent implements OnInit {
       console.log('this backtesting data' , this.backTestingReport)
     })
   }
+  getVerificationDataById() {
+    this.supabase.getPriceValuesFromPriceTableByID(this.config.data?.strategyid?.id)
+    .then((d : any) => {
+      console.log('d' , d )
+      this.verified = d.data[0].verified;
+    })
+  }
+  
 }

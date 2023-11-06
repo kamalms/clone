@@ -35,6 +35,7 @@ import {ProgressBarModule} from 'primeng/progressbar';
 import {OverlayPanelModule} from 'primeng/overlaypanel';
 import { CustomDateFormatPipe } from './custom-date-format.pipe';
 import { BackTestDetailComponent } from './back-test-detail/back-test-detail.component';
+import {InputTextareaModule} from 'primeng/inputtextarea';
 const routes: Routes = [
   { path: 'backtestreports', component: ReportsComponent },
   // { path: 'bnlevels', component: BnlevelsComponent },
@@ -80,7 +81,8 @@ const routes: Routes = [
     ButtonModule,
     DropdownModule,
     ProgressBarModule,
-    OverlayPanelModule
+    OverlayPanelModule,
+    InputTextareaModule
   ],
   providers: [],
   bootstrap: [AppComponent],

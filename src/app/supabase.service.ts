@@ -263,4 +263,23 @@ export class SupabaseService {
       );
     }
   }
+
+  async insertVerificationData(
+    dataFromForm: any
+  ): Promise<any> {
+    if (dataFromForm) {
+      return (
+        this.supabase
+          .from('strike_prices')
+          .update([
+            {
+              verified: dataFromForm?.verified 
+
+            },
+          ])
+          .eq('id', dataFromForm?.order_id)
+          .select()
+      );
+    }
+  }
 }

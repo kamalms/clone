@@ -640,7 +640,7 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
               this.initAlgoRealTime(childStrategy);
               this.getReportsData(childStrategy , this.collectionofStrikes[index]);
             });
-            this.showSuccess('info', 'Success', 'Strategy Added');      
+          //  this.showSuccess('info', 'Success', 'Strategy Added');      
           } else {
             console.log(`Item with id ${strike?.id} not found in the array`);
           }
@@ -804,11 +804,15 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
       })
     }
   }
+  // revisite here why this function not used  ? 
+  // got it this is used before web socket flow integration 
   startAlgo(token: any, strategy_id: number, dname : string, strikename: string) {
     this.WebSocketAuth();
      // this.webworker.startWorker();
     // 10000 == 1 sec
-    this.getBankNiftySpecificStrickeRateTouchline(token);
+    // this.getBankNiftySpecificStrickeRateTouchline(token);
+    this.getSpecificStrickeRateTouchline(token);
+    
     const apiInterval = 26000; // 40 seconds in milliseconds
     console.log('new logic check start api call on parent strike click', token)
      this.eachchildvalue.filter((strategyObject: any) => {
@@ -1320,7 +1324,7 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
     this.websocketconnection.getDataFromWS(strickobject);
   }
 
-  getBankNiftySpecificStrickeRateTouchline(s : any) {
+  getSpecificStrickeRateTouchline(s : any) {
     // NSE|22#BSE|508123#NSE|NIFTY
     let strickobject = {
       "t": "t",
@@ -1334,7 +1338,7 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
     this.WebSocketAuth();
      // this.webworker.startWorker();
     // 10000 == 1 sec
-    this.getBankNiftySpecificStrickeRateTouchline(token);
+    this.getSpecificStrickeRateTouchline(token);
    
     console.log('new logic check start api call on parent strike click', token)
      this.eachchildvalue.filter((strategyObject: any) => {
