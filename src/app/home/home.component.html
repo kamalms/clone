@@ -2,6 +2,24 @@
 <div>
   Upto now all Positive Points  
   {{ (+profit) + (+loss) }}
+  <style>
+    table {
+      font-family: Arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+  
+    th, td {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+  
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+  </style>
+
   <table>
     <tr>
       <th>Total</th>
@@ -31,6 +49,7 @@ pButton
 pRipple (click)="showYesterDateData()"
 ></button>
 <button
+class="p-button-rounded p-button-warning"
 label="Show All Data"
 type="button"
 pButton
@@ -39,13 +58,14 @@ pRipple (click)="showAllData()"
 <button
 label="Hide All Data"
 type="button"
+class="p-button-rounded p-button-danger"
 pButton
 pRipple (click)="hideAllData()"
 ></button>
 <button
 label="Only Selected Strike To trade"
 type="button"
-pButton
+pButton class="p-button-rounded p-button-primary"
 pRipple (click)="filterbySelectedStrike()"
 ></button>
 <p-toast></p-toast>

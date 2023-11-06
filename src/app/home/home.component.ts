@@ -1528,6 +1528,7 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
            this.collectionofStrikes = strikes.data;
           this.collectionofStrikes.forEach((eachStrike: any) => {
             eachStrike.show_to_trade = true;
+            this.getCloneValues(eachStrike);
           });
         }
       }
@@ -1570,7 +1571,11 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
            this.collectionofStrikes = strikes.data.filter((i) =>{
             if (i?.show_to_trade != null && i.show_to_trade)
             return i ;
+          });
+          this.collectionofStrikes.map((eachStrike) =>{
+            this.getCloneValues(eachStrike);
           })
+         
         }
       });
     }
