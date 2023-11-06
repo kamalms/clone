@@ -202,11 +202,16 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
         const itemDateWithoutTime = new Date(itemDate.getFullYear(), itemDate.getMonth(), itemDate.getDate()); // Set time to 00:00:00
       
         // Compare the dates, excluding today
-        if (itemDateWithoutTime < today) {
-          eachStrike.hideStrikeinUI = true;
-        }
+        // if (itemDateWithoutTime < today) {
+        //   eachStrike.hideStrikeinUI = true;
+        // } else {
+        //   eachStrike.hideStrikeinUI = false;
+        // }
        });
        this.collectionofStrikes.map((strike: any) => {
+        if (strike?.show_to_trade == null) {
+          strike.show_to_trade = false;
+        }
          this.getCloneValues(strike);
        });
        this.loading = false;
@@ -1478,11 +1483,7 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
         };
       })
   }
-  showAllData() {
-    this.collectionofStrikes.forEach((eachStrike: any) => {
-      eachStrike.hideStrikeinUI = false;
-    });
-  }
+  
 
   calculateParentStrikePoints ( cloneForm :any  , parentArray : any) {
     let totalPositiveSum = 0 ;
@@ -1520,6 +1521,60 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
         }
       });
     }
+    showAllData() {
+      this.collectionofStrikes = [];
+      this.supabase.getStrikesFromDB().then((strikes) => {
+        if (strikes.data != null) {
+           this.collectionofStrikes = strikes.data;
+          this.collectionofStrikes.forEach((eachStrike: any) => {
+            eachStrike.show_to_trade = true;
+          });
+        }
+      }
+      );
+
+    }
+    hideAllData() {
+      this.collectionofStrikes.forEach((eachStrike: any) => {
+        
+        eachStrike.show_to_trade = false;
+      });
+    }
+    makeAsVisibleToCurrentTrade(martSelectedStrikeToTrade : any) {
+      martSelectedStrikeToTrade.show_to_trade = true;
+      this.hideandshowCollectionOfStrike(martSelectedStrikeToTrade);
+    }
+    // instead of delete will hide from ui , 
+    removeFromStrikeList(martSelectedStrikeToTrade : any) {
+      martSelectedStrikeToTrade.show_to_trade = false;
+      this.hideandshowCollectionOfStrike(martSelectedStrikeToTrade);
+
+      
+    }
+    hideandshowCollectionOfStrike(martSelectedStrikeToTrade : any){
+      this.supabase.updateToMarketWatch(martSelectedStrikeToTrade).then((data : any) =>{
+        if (data && data?.length > 0 ) {
+         if (data[0].show_to_trade) {
+           this.collectionofStrikes.filter( (eachStrike : any) => {
+             if (eachStrike.id == data[0].id ) {
+               eachStrike.show_to_trade = data[0].show_to_trade; 
+             }
+           })
+         }
+        }
+     })
+    }
+    filterbySelectedStrike() {
+      this.supabase.getStrikesFromDB().then((strikes) => {
+        if (strikes.data != null) {
+           this.collectionofStrikes = strikes.data.filter((i) =>{
+            if (i?.show_to_trade != null && i.show_to_trade)
+            return i ;
+          })
+        }
+      });
+    }
+    
     }
   
 

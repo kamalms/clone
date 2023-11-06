@@ -26,6 +26,7 @@ export interface BNStrikeItem {
   cloneForm?: [] | any;
   totalNegativeSum?: number;
   totalPositiveSum?:number;
+  show_to_trade: boolean
 }
 
 export interface Customer {

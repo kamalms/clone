@@ -109,9 +109,25 @@ export class SupabaseService {
           weekly: dataFromSource?.weekly,
           optt: dataFromSource?.optt,
           token: dataFromSource?.token,
+          show_to_trade:true
         },
       ])
       .select();
+  }
+  async updateToMarketWatch(dataFromForm: any): Promise<any> {
+    if (dataFromForm) {
+      return (
+        this.supabase
+          .from('market_watch')
+          .update([
+            {
+              show_to_trade: dataFromForm?.show_to_trade
+            },
+          ])
+          .eq('id', dataFromForm?.id)
+          .select()
+      );
+    }
   }
 
   async deleteMarketWatch(dataFromSource: any) {

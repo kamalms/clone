@@ -2,23 +2,6 @@
 <div>
   Upto now all Positive Points  
   {{ (+profit) + (+loss) }}
-  <style>
-    table {
-      font-family: Arial, sans-serif;
-      border-collapse: collapse;
-      width: 100%;
-    }
-  
-    th, td {
-      border: 1px solid #dddddd;
-      text-align: left;
-      padding: 8px;
-    }
-  
-    tr:nth-child(even) {
-      background-color: #f2f2f2;
-    }
-  </style>
   <table>
     <tr>
       <th>Total</th>
@@ -53,6 +36,18 @@ type="button"
 pButton
 pRipple (click)="showAllData()"
 ></button>
+<button
+label="Hide All Data"
+type="button"
+pButton
+pRipple (click)="hideAllData()"
+></button>
+<button
+label="Only Selected Strike To trade"
+type="button"
+pButton
+pRipple (click)="filterbySelectedStrike()"
+></button>
 <p-toast></p-toast>
 <p-table
   #dt
@@ -76,7 +71,7 @@ pRipple (click)="showAllData()"
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-strike let-expanded="expanded">
-    <tr class="p-selectable-row" *ngIf="!strike.hideStrikeinUI">
+    <tr class="p-selectable-row" *ngIf="strike.show_to_trade">
       <td>
         <button
           type="button"
@@ -108,25 +103,39 @@ pRipple (click)="showAllData()"
       <td>
         <!-- parent p table buttons -->
         <div class="flex">
-          <button
+          <!-- <button
             pButton
             pRipple
             icon="pi pi-trash"
             class="p-button-rounded p-button-danger mr-2"
             
-          ></button>
+          ></button> -->
 
           <!-- (click)="deleteStrike(strike)"  <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2 "
                 (click)="setTarget(strike)"></button> -->
 
-          <button
+          <!-- <button
             pButton
             pRipple
             icon="pi pi-play"
             class="p-button-rounded p-button-danger mr-2"
             (click)="startAll_Algo_UnderthisStrike(strike)"
-          ></button>
-
+          ></button> -->
+          <button
+          pButton
+          pRipple
+          icon="pi pi-bookmark-fill"
+          class="p-button-rounded  mr-2"
+          (click)="makeAsVisibleToCurrentTrade(strike)"
+        ></button>
+        
+        <button
+          pButton
+          pRipple
+          icon="pi pi-bookmark-fill"
+          class="p-button-rounded p-button-danger mr-2"
+          (click)="removeFromStrikeList(strike)"
+        ></button>
           <button
             pButton
             pRipple
