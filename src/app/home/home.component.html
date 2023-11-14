@@ -284,7 +284,7 @@ pRipple (click)="filterbySelectedStrike()"
                       pRipple
                       icon="pi pi-play"
                       class="p-button-rounded p-button-success mr-2"
-                      (click)="startAlgoByWebSocket(cloneitem?.token, cloneitem?.id , cloneitem?.tsym, cloneitem?.dname)"
+                      (click)="startAlgoByWebSocket(cloneitem?.token, cloneitem?.id)"
                     ></button>
                     <button *ngIf="cloneitem?.isRunning"
                       pButton
