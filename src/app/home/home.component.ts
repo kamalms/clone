@@ -101,7 +101,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   chartDataInterval$: any;
 
-  eachchildvalue: any[] = [];
+  strategyies: any[] = [];
   algoinitiaedTokens: any[] = [];
   cities!: any[];
   selectedCity: any;
@@ -815,7 +815,7 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
     
     const apiInterval = 26000; // 40 seconds in milliseconds
     console.log('new logic check start api call on parent strike click', token)
-     this.eachchildvalue.filter((strategyObject: any) => {
+     this.strategyies.filter((strategyObject: any) => {
       if (strategyObject?.strategy_id == strategy_id) {
         strategyObject.isRunning = true;
         this.supabase.updateToStrikePrice({
@@ -854,7 +854,7 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
         //  values only need to checked with response price  strategy_id
       //  console.log('on real check' , this.eachchildvalue);
         this.dataService.b1$.subscribe((updatedB1value : any) => {
-            this.eachchildvalue.forEach((strategyid:any) => {
+            this.strategyies.forEach((strategyid:any) => {
                if (strategyid.strategy_id == updatedB1value?.strategy_id ) {
                 strategyid.b1 = updatedB1value?.B1;
                 strategyid.t1 = updatedB1value?.T1;
@@ -864,7 +864,7 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
             })
               });
 
-        let eachstratey = this.eachchildvalue.filter((strategyObject: any) => {
+        let eachstratey = this.strategyies.filter((strategyObject: any) => {
           if (strategyObject?.strategy_id == strategy_id) {
             return strategyObject;
           } else {
@@ -874,8 +874,8 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
         // let objectdata = getValueEveryMinute(THIS);
         let objectdata = data[0];
         console.log('objectdata', objectdata)
-        this.handlePlaceOrder(objectdata,
-          eachstratey[0] , dname , strikename);
+        // this.handlePlaceOrder(objectdata,
+        //   eachstratey[0] , dname , strikename);
         //  if (strategyid?.scriptid == data?.scriptid) {
         // if (strategyObject?.strategy_id == strategy_id ) {
         //  let childCloneItemValues = {
@@ -915,12 +915,12 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
     }
   }
   ArrayofObject: any[] = [];
-  handlePlaceOrder(object: any, strageryFormValues: any , strikeUniqueid : string , strikename : string) {
+  handlePlaceOrder(object: any, strageryFormValues: any) {
     let B1 = strageryFormValues?.b1;
     let T1 = strageryFormValues?.t1;
     let SL = parseFloat(strageryFormValues?.sl);
     let strateguniqueid = strageryFormValues?.strategyid;
-    strikeUniqueid = strageryFormValues?.tsym;
+    let strikeUniqueid = strageryFormValues?.tsym;
     let openPrice = object?.into;
     // let closePrice = parseFloat(object?.intc);
     // let highPrice = parseFloat(object?.inth);
@@ -957,7 +957,8 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
           ).then((updatedToBackEnd:any) => {
             console.log('updatedToBackEnd' , updatedToBackEnd)
           });
-          this.setDynamicAlert(`${strikename} buying call` ,strikeUniqueid, closePrice, "B");
+          // this.setDynamicAlert(`${strikename} buying call` ,strikeUniqueid, closePrice, "B");
+          this.placeOrder(strikeUniqueid, closePrice,"B" )
       }
     } else {
 
@@ -997,7 +998,8 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
             });
 
             // dynamic alert set 
-            this.setDynamicAlert(`${strikename} selling call alert` ,strikeUniqueid, highPrice, "S");
+           // this.setDynamicAlert(`${strikename} selling call alert` ,strikeUniqueid, highPrice, "S");
+            this.placeOrder(strikeUniqueid, highPrice, "S" );
         }
         // it mean b1 executed and sell also not executed sl also not triggered
         if (strageryFormValues.buytriggered && !strageryFormValues.selltriggered &&
@@ -1043,7 +1045,8 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
             });
 
             // SL trigger alert 
-            this.setDynamicAlert(`${strikename} SL call alert` ,strikeUniqueid, highPrice, "S");
+           // this.setDynamicAlert(`${strikename} SL call alert` ,strikeUniqueid, highPrice, "S");
+            this.placeOrder(strikeUniqueid, highPrice, "S" )
             }
           
         }
@@ -1088,7 +1091,7 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
           }
           // const newArray: any[] = [pricelevelobject]; // Create a new empty array
           // this.dynamicArrays.push(newArray);
-          this.eachchildvalue?.push(pricelevelobject);
+          this.strategyies?.push(pricelevelobject);
           // console.log('on push check main arrrya ' , this.eachchildvalue);
 
           // need to check below line is need for further ???
@@ -1268,7 +1271,7 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
 
           if (cloneitem?.s_running_status) {
              // this.startAlgo(cloneitem?.token, cloneitem?.id , cloneitem?.tsym, cloneitem?.dname)
-             this.startAlgoByWebSocket(cloneitem?.token, cloneitem?.id , cloneitem?.tsym, cloneitem?.dname)
+             this.startAlgoByWebSocket(cloneitem?.token, cloneitem?.id)
         }
       })
       }
@@ -1334,14 +1337,14 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
   }
 
 
-  startAlgoByWebSocket(token: any, strategy_id: number, dname : string, strikename: string) {
+  startAlgoByWebSocket(token: any, strategy_id: number) {
     this.WebSocketAuth();
      // this.webworker.startWorker();
     // 10000 == 1 sec
     this.getSpecificStrickeRateTouchline(token);
    
     console.log('new logic check start api call on parent strike click', token)
-     this.eachchildvalue.filter((strategyObject: any) => {
+     this.strategyies.filter((strategyObject: any) => {
       if (strategyObject?.strategy_id == strategy_id) {
         strategyObject.isRunning = true;
         this.supabase.updateToStrikePrice({
@@ -1355,15 +1358,16 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
     });
     // on play click show and hide pause or play button logic
     this.findAndUpdateCollectionArray(token , strategy_id, true)
-    this.subcribeToWebSocketResponse(strategy_id, dname,strikename);
+    // this.subcribeToWebSocketResponse(strategy_id,strikename);
+    this.subcribeToWebSocketResponse();
       }
 
-      subcribeToWebSocketResponse(strategy_id: number, dname : string, strikename: string) {
+      subcribeToWebSocketResponse() {
        
-            const subscription  : any =  this.depthData.messages.subscribe((result: any) => {
+            const subscription  : any =  this.depthData.messages.subscribe((wsResponse: any) => {
 
               this.dataService.b1$.subscribe((updatedB1value : any) => {
-                this.eachchildvalue.forEach((strategyid:any) => {
+                this.strategyies.forEach((strategyid:any) => {
                    if (strategyid.strategy_id == updatedB1value?.strategy_id ) {
                     strategyid.b1 = updatedB1value?.B1;
                     strategyid.t1 = updatedB1value?.T1;
@@ -1372,38 +1376,25 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
                    }
                 })
                   });
-      
-      
-                  // let eachstratey = this.eachchildvalue.filter((strategyObject: any) => {
-                  //   if (strategyObject?.strategy_id == strategy_id) {
-                  //     return strategyObject;
-                  //   } else {
-                  //     return;
-                  //   }
-                  // });
                  
-          console.log('nfo check' , result) 
+          console.log('nfo check' , wsResponse) 
 
-          if (result) {
-            if (result?.e == "NSE") {
+          if (wsResponse) {
+            if (wsResponse?.e == "NSE") {
               // BN values comes here
-              console.log('BN values', result?.e);
+              console.log('BN values', wsResponse?.e);
               // this.BNValues = result;
               // this.checkBNsupport(result);
-            } else if (result?.e == "NFO") {
+            } else if (wsResponse?.e == "NFO") {
               // strike price will come here
-              let eachstratey = this.eachchildvalue.filter((strategyObject: any) => {
-                if (result?.tk && result.tk == strategyObject?.scriptid ){
-                  this.handlePlaceOrder(result,
-                    strategyObject , dname , strikename);
+              let eachstratey = this.strategyies.filter((strategyObject: any) => {
+                if (wsResponse?.tk && wsResponse.tk == strategyObject?.scriptid ){
+                  this.handlePlaceOrder(wsResponse,
+                    strategyObject);
                 } else {
                   return;
                 }
               });
-     
-              
-              // this.strikeValues = result;
-              // this.setDynamicAlert(result)
             } else {
               // else as per syntax
             }
