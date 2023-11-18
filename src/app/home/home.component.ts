@@ -1086,7 +1086,8 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
             selltriggered: serverSide_T1_trigger_value ? serverSide_T1_trigger_value : false,
             sltriggered: serverSide_SL_trigger_value ? serverSide_SL_trigger_value : false,
             strategy_id: id,
-            tsym:placeorderstrikename
+            tsym:placeorderstrikename,
+            stopStrategyById:undefined,
             // b1serervalue : serverSide_B1_trigger_value
           }
           // const newArray: any[] = [pricelevelobject]; // Create a new empty array
@@ -1141,6 +1142,19 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
     }
 
     this.showSuccess('success', 'success', 'Algo Stopped');
+
+    // find by strategy id and remove it 
+    // logic to stop the specific s_id from taking position
+    // in some situtation unlimited trade happen to stop that s _ id is  very important
+    // so strategyies array is main array have all s_id
+    // find index which one have to stop then add stopsbyid extra key to specific item
+    // so in websocket flow time will filter and not to take trade 
+    const index2 = this.strategyies.findIndex(
+      (item) => item.strategyid === strike?.id
+    );
+    if (index2 !== -1) {
+      this.strategyies[index2].stopStrategyById =  true;
+    }
   }
   unsubscribeAll(selectedSub : any) {
     selectedSub.forEach( ( subscription : any )=> {
@@ -1338,7 +1352,16 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
 
 
   startAlgoByWebSocket(token: any, strategy_id: number) {
-    this.WebSocketAuth();
+     // this.WebSocketAuth();
+    // this also regarding pause and play time need to handle the stop strategy id boolen value,
+    // here only we set based on s_id set s to take trade by setting to false value
+    const index2 = this.strategyies.findIndex(
+      (item) => item.strategyid === strategy_id
+    );
+    if (index2 !== -1) {
+       this.strategyies[index2].stopStrategyById =  false;
+    }
+  
      // this.webworker.startWorker();
     // 10000 == 1 sec
     this.getSpecificStrickeRateTouchline(token);
@@ -1386,13 +1409,13 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
               // this.BNValues = result;
               // this.checkBNsupport(result);
             } else if (wsResponse?.e == "NFO") {
-              // strike price will come here
+              // strike price will come here          
               let eachstratey = this.strategyies.filter((strategyObject: any) => {
-                if (wsResponse?.tk && wsResponse.tk == strategyObject?.scriptid ){
+                if ( ( wsResponse?.tk && wsResponse.tk == strategyObject?.scriptid) &&
+                 (strategyObject?.stopStrategyById == false ) ){
+                  console.log('handle order')
                   this.handlePlaceOrder(wsResponse,
                     strategyObject);
-                } else {
-                  return;
                 }
               });
             } else {
@@ -1574,7 +1597,18 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
         }
       });
     }
-    
+    test() {
+      var ws = new WebSocket('ws://localhost:40510');
+
+      ws.onopen = function () {
+          console.log('websocket is connected ...')
+          ws.send('connected')
+      }
+  
+      ws.onmessage = function (ev) {
+          console.log(ev);
+      }
+    }
     }
   
 
