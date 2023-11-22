@@ -807,7 +807,6 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
   // revisite here why this function not used  ? 
   // got it this is used before web socket flow integration 
   startAlgo(token: any, strategy_id: number, dname : string, strikename: string) {
-    this.WebSocketAuth();
      // this.webworker.startWorker();
     // 10000 == 1 sec
     // this.getBankNiftySpecificStrickeRateTouchline(token);
@@ -956,6 +955,13 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
             }
           ).then((updatedToBackEnd:any) => {
             console.log('updatedToBackEnd' , updatedToBackEnd)
+            // now order is triggered , ui need to know which sid is triggered so , will use ng class to style 
+            // strateguniqueid is s_id , 
+            // using this possible to update UI right ?
+            // yes but it need to be updated continuesly , because this block of code will run frequently based on B1 T1 SL 
+            // need to maintain array of objects , each object should contain triggered key 
+            // it should be boolean 
+            this.triggeredOrNot(object?.tk,strateguniqueid,true );
           });
           // this.setDynamicAlert(`${strikename} buying call` ,strikeUniqueid, closePrice, "B");
           this.placeOrder(strikeUniqueid, closePrice,"B" )
@@ -996,6 +1002,7 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
             .insertToBacktesting(sellObjects)
             .then((data: any) => {
             });
+            this.triggeredOrNot(object?.tk,strateguniqueid,false );
 
             // dynamic alert set 
            // this.setDynamicAlert(`${strikename} selling call alert` ,strikeUniqueid, highPrice, "S");
@@ -1043,6 +1050,8 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
             .insertToBacktesting(sLObjects)
             .then((data: any) => {
             });
+
+            this.triggeredOrNot(object?.tk,strateguniqueid,false );
 
             // SL trigger alert 
            // this.setDynamicAlert(`${strikename} SL call alert` ,strikeUniqueid, highPrice, "S");
@@ -1139,6 +1148,7 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
       let needtoUpdatedStrategyValue = this.collectionofStrikes[index].cloneForm.
          filter( ( eachStrategy : any)=> eachStrategy?.id == strike?.id);
       needtoUpdatedStrategyValue[0].isRunning = false;
+      needtoUpdatedStrategyValue[0].triggered = undefined;
     }
 
     this.showSuccess('success', 'success', 'Algo Stopped');
@@ -1597,7 +1607,11 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
         }
       });
     }
+    reconnect(){
+      this.WebSocketAuth();
+    }
     test() {
+      this.WebSocketAuth();
       var ws = new WebSocket('ws://localhost:40510');
 
       ws.onopen = function () {
@@ -1607,6 +1621,18 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
   
       ws.onmessage = function (ev) {
           console.log(ev);
+      }
+    }
+
+    triggeredOrNot(itemToFound: any , childId: any, triggered : boolean) {
+      const index = this.collectionofStrikes.findIndex(
+        (item) => item.token == itemToFound
+      );
+      if (index !== -1 && this.collectionofStrikes[index].cloneForm) {
+        let needtoUpdatedStrategyValue = this.collectionofStrikes[index].cloneForm.
+           filter( ( eachStrategy : any)=> eachStrategy?.id == childId);
+           if (needtoUpdatedStrategyValue && needtoUpdatedStrategyValue?.length > 0 )
+           needtoUpdatedStrategyValue[0].triggered = triggered;
       }
     }
     }

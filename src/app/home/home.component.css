@@ -5,5 +5,17 @@
   
   
   
-  
+
+
+.green {
+  background-color: lightgreen !important;
+}
+
+.red  {
+  background-color: lightcoral !important;
+}
+.gray{
+  background-color: white !important;
+}
+
   

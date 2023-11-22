@@ -213,7 +213,11 @@ pRipple (click)="filterbySelectedStrike()"
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-cloneitem>
-              <tr class="p-selectable-row">
+              
+              <tr class="p-selectable-row" [ngClass]="{'green': cloneitem.triggered,
+               'red': !cloneitem.triggered,
+               'gray':cloneitem.triggered == undefined
+               }" >
                 <td>
                   <span style="font-weight: bold;"> {{ cloneitem.id }}</span>
                 </td>
@@ -503,3 +507,5 @@ pRipple (click)="filterbySelectedStrike()"
 <button (click)="getBankNiftySpecificStrickeRate('56133')">strikce valuees by depth</button>
 <button (click)="test()">Local Web Socket test </button>
 <!-- <button (click)="getBankNiftySpecificStrickeRateTouchline('56133')">strikce valuees by touchline</button> -->
+
+<button (click)="reconnect()">reconnect Web Socket  </button>
