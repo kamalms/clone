@@ -197,6 +197,7 @@ this.collectionofStrikes.forEach((eachStrike: any) => {
 const currentDate = new Date();
 const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
        this.collectionofStrikes = customers.data;
+       this.getlayouts();
        this.collectionofStrikes.forEach( (eachStrike : any) => {
         const itemDate = new Date(eachStrike.created_at);
         const itemDateWithoutTime = new Date(itemDate.getFullYear(), itemDate.getMonth(), itemDate.getDate()); // Set time to 00:00:00
@@ -1426,6 +1427,7 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
                   console.log('handle order')
                   this.handlePlaceOrder(wsResponse,
                     strategyObject);
+                   // this.setBuyPriceAndCalculateTarget(strategyObject, wsResponse)
                 }
               });
             } else {
@@ -1635,6 +1637,177 @@ const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), curren
            needtoUpdatedStrategyValue[0].triggered = triggered;
       }
     }
+
+    // writin logic for scalping defined Target values 
+    // idea is if B1 is defined T1 initially B1 + 3 so T1 = 3 points 
+    // then , current price is above T1 
+    // dynamically define B1 and T1 
+    // let backtest before implement to live 
+    // removed above snippet code , it is same algo like scapling component 
+    // it need to improved , 
+    
+  //get layout get values from charts data
+  ChartResponse: any;
+  getlayouts() {
+    let getToken = this.flattradeService.getUserObjectFromLocalStorage();
+    let SetAlert = ''
+
+    SetAlert = `https://web.flattrade.in/NorenWClientWeb/StudyTemGetData?
+user=${getToken?.client}&template=TVCHARTDATA&
+jKey=${getToken?.token}`;
+
+    this.httpClient.get(SetAlert).subscribe((ChartResponse: any) => {
+      //working one below
+      var ChartResParse = ChartResponse.data;
+      // ChartResParse will have all the saved layouts
+      this.ChartResponse = JSON.parse(ChartResParse);
+      console.log('1', this.ChartResponse);
+      let currentOrFutureWeek: any = [];
+      if (this.collectionofStrikes)
+       // now having issue with older strike 
+    // older strike is no longer availble on flattrade or any server 
+    // so that should be ommited before make search api
+        this.collectionofStrikes.map((alreadyStrikeAddedInWatchList: any, index) => {
+          const result = this.isCurrentOrFutureWeekDate(alreadyStrikeAddedInWatchList?.tsym, index);
+          if (result?.futureDate) {
+            currentOrFutureWeek.push(this.collectionofStrikes[result?.index]);
+          }
+        });
+      this.searchStrikeAndAddToWatchList(currentOrFutureWeek);
+    });
+  }
+
+  searchStrikeAndAddToWatchList(needtoAdd: any) {
+    // Find unmatched values from array1
+    const unmatchedValuesArray1 = this.ChartResponse.filter((obj1: any) => {
+      // Check if obj1.name does not match any obj2.value in array2
+      return !needtoAdd.some((obj2: any) => obj1.symbol === obj2.tsym);
+    }).map((obj: any) => obj.symbol);
+
+    // Find unmatched values from array2
+    const unmatchedValuesArray2 = needtoAdd.filter((obj2: any) => {
+      // Check if obj2.value does not match any obj1.name in array1
+      return !needtoAdd.some((obj1: any) => obj2.tsym === obj1.tsym);
+    }).map((obj: any) => obj.tsym);
+    unmatchedValuesArray1.map((drawingItem: any) => {
+      this.searchByApi(drawingItem)
+    })
+  }
+  searchByApi(queryText: string) {
+    let getToken = this.flattradeService.getUserObjectFromLocalStorage();
+    let bodyOfuserDetails = {};
+    const jKey = getToken?.token;
+    bodyOfuserDetails = `jData={
+        "uid":"${getToken?.client}",
+      "stext":"${queryText}"}&jKey=${jKey}`;
+    this.httpClient
+      .post(FlatTradeURLs.SEARCHSCRIPS, bodyOfuserDetails)
+      .subscribe((scriptsResult: any) => {
+        if (scriptsResult && scriptsResult.values?.length > 0)
+          // below add market table and return result from table
+          this.selectedStrikeEvent(scriptsResult.values[0])
+      });
+  }
+  getDrawingValues(strike: any) {
+    if (strike && strike?.tsym) {
+      let symbolToFilter = `NFO:${strike?.tsym}`;
+      // here index is symbol of required strike name //
+      console.log('this.ChartResponse', this.ChartResponse)
+
+      let checknewthings = this.ChartResponse.filter((searchIndex: any) => {
+        return strike?.tsym == searchIndex?.symbol;
+      });
+      if (checknewthings?.length > 0) {
+        var contentParsed = checknewthings[0].content;
+
+        var parseddata = JSON.parse(contentParsed);
+        var contentInsideContent = parseddata.content;
+
+        var chartsArray = JSON.parse(contentInsideContent);
+
+        // // Filter the array based on the type property
+        const filteredArray = chartsArray.charts[0].panes[0].sources.filter(
+          (obj: any) => obj.type === 'LineToolHorzRay'
+        );
+
+        // Filter the array based on the symbol property
+        const arrayOfObjects = filteredArray.filter((obj: any) => obj.state.symbol === symbolToFilter);
+
+        // now have array this is points array have all values for specific strike 
+        // need to sort by price level 
+        // because low to high is major to create option buying 
+        // Sort the array based on the "price" in the "points" array of each object
+        arrayOfObjects.sort((a: any, b: any) => {
+          const priceA = a.points[0].price; // Assuming there's only one point in the "points" array
+          const priceB = b.points[0].price; // Assuming there's only one point in the "points" array
+          return priceA - priceB;
+        });
+
+        console.log('final expected results ', arrayOfObjects);
+      }
+
+    }
+  }
+
+  // from here based on string get Date current or future week
+  isCurrentOrFutureWeekDate(inputString: any, index: number): any {
+    if (inputString) {
+      const match = inputString.match(/\d{2}[A-Z]{3}\d{2}/);
+      if (!match) {
+        return false; // Return false if the pattern is not found in the input string
+      }
+
+      const extractedString = match[0];
+      // console.log('extractedString' , extractedString)
+      const extractedDate = new Date(`20${extractedString.slice(5, 7)}-${this.getMonthNumber(extractedString.slice(2, 5))}-${extractedString.slice(0, 2)}`);
+      // console.log('123' , extractedDate)
+      const currentDate = new Date();
+
+      // Calculate the start and end dates of the current week
+      const startOfWeek = this.getStartOfWeek(currentDate);
+      // const endOfWeek = this.getEndOfWeek(currentDate);
+
+      // Calculate the start date of the next week
+      const startOfNextWeek = new Date(startOfWeek);
+      startOfNextWeek.setDate(startOfWeek.getDate() + 7);
+      // console.log('startOfWeek' , startOfWeek)
+      // Check if the extracted date falls within the current week or any future week
+      // return extractedDate >= startOfWeek && extractedDate <= startOfNextWeek;
+      return {
+        futureDate: extractedDate >= startOfWeek,
+        index: index
+      }
+
+    }
+  }
+
+  // Function to convert month abbreviation to month number
+  getMonthNumber(monthAbbr: any) {
+    const months: any = {
+      JAN: '01', FEB: '02', MAR: '03', APR: '04', MAY: '05', JUN: '06',
+      JUL: '07', AUG: '08', SEP: '09', OCT: '10', NOV: '11', DEC: '12'
+    };
+    return months[monthAbbr];
+  }
+
+  // Function to get the start of the week (Sunday) for a given date
+  getStartOfWeek(date: any) {
+    const dayOfWeek = date.getDay();
+    const startOfWeek = new Date(date);
+    startOfWeek.setDate(date.getDate() - dayOfWeek);
+    startOfWeek.setHours(0, 0, 0, 0);
+    return startOfWeek;
+  }
+
+  // Function to get the end of the week (Saturday) for a given date
+  getEndOfWeek(date: any) {
+    const dayOfWeek = date.getDay();
+    const endOfWeek = new Date(date);
+    endOfWeek.setDate(date.getDate() + (6 - dayOfWeek));
+    endOfWeek.setHours(23, 59, 59, 999);
+    return endOfWeek;
+  }
+
     }
   
 

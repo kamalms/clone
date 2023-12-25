@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject, map } from 'rxjs';
 import { WebSocketService } from './web-socket.service';
 const CHAT_URL = "wss://piconnect.flattrade.in/PiConnectWSTp/";
-
+// const CHAT_URL = "ws://localhost:40510";
 export interface Message {
   author: string;
   message: string;

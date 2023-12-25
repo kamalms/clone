@@ -1,0 +1,37 @@
+:host ::ng-deep .ui-listbox {
+    width: 60rem;
+  }
+  .container {
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.col-30 {
+    flex: 0 0 30%;
+    max-width: 30%;
+    box-sizing: border-box;
+    padding: 15px;
+}
+
+.col-70 {
+    flex: 0 0 70%;
+    max-width: 70%;
+    box-sizing: border-box;
+    padding: 15px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .col-30, .col-70 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+.error {
+    color: red;
+    font-size: 18px;
+    font-weight: 500;
+}

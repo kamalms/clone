@@ -1,0 +1,94 @@
+
+<div class="container">
+    <div class="col-30">
+        <!-- Your content for the 30% column goes here -->
+        <h2>Choose the Product</h2>
+        <div class="field">
+            <h5>Choose the Product</h5>
+    <p-listbox [options]="groupedCities" [group]="true" [(ngModel)]="selectedCountries" [metaKeySelection]="false"
+      [checkbox]="true" [filter]="true" [multiple]="true" [listStyle]="{'max-height':'250px'}" [style]="{'width':'15rem'}">
+      <ng-template let-group pTemplate="group">
+        <div class="p-d-flex p-ai-center">
+          <span>{{group.label}}</span>
+        </div>
+      </ng-template>
+    </p-listbox>
+    
+        </div>
+    </div>
+   
+    <div class="col-70">
+        <form [formGroup]="form">
+        <!-- Your content for the 70% column goes here -->
+        <h2>
+            Scalping
+        </h2>
+        <div class="p-grid p-fluid">
+        <div class="formgrid grid">
+            <div class="field col-12 md:col-6">
+                <!-- <label for="firstname6">Firstname</label>
+                <input id="firstname6" type="text" class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"> -->
+        
+        
+                <label for="horizontal">Max Open Position</label>
+                <p-inputNumber 
+                class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+                [showButtons]="true" formControlName="maxOpenPosition" buttonLayout="horizontal" inputId="horizontal" spinnerMode="horizontal" [step]="checkProductType()"
+                decrementButtonClass="p-button-danger" incrementButtonClass="p-button-success" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" >
+                </p-inputNumber>
+                <div *ngIf="form.get('maxOpenPosition')?.hasError('isValidLot')">
+                    <span class="error">
+                      Please enter valid Lot Size as per Product Type (Calculate here how to round and make correct lot size automatically)
+                    </span>
+                  </div>
+        
+            </div>
+            <div class="field col-12 md:col-6">
+                <label for="horizontal">Slicing Quantity</label>
+                <p-inputNumber class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full" [showButtons]="true" buttonLayout="horizontal" inputId="horizontal" spinnerMode="horizontal" [step]="checkProductType()"
+                formControlName="slicingQty"
+                decrementButtonClass="p-button-danger"
+                
+                 incrementButtonClass="p-button-success" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" >
+                </p-inputNumber>
+                <div *ngIf="form.get('slicingQty')?.hasError('isValidLot')">
+                    <span class="error">
+                      Please enter valid Lot Size as per Product Type (Calculate here how to round and make correct lot size automatically)
+                    </span>
+                  </div>
+            </div>
+            <div class="field col-12 md:col-6">
+                <label for="minmaxfraction">Averaging Entry Difference</label>
+                <p-inputNumber  formControlName="averagePrice" class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"  inputId="minmaxfraction" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2">
+                </p-inputNumber>
+            </div>
+        
+            <div class="field col-12 md:col-6">
+                <label for="minmaxfraction">Take Profit / Exit Difference </label>
+                <p-inputNumber  formControlName="exitPrice" class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"  inputId="minmaxfraction" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2">
+                </p-inputNumber>
+            </div>
+        
+        
+            <div class="field col-12 md:col-6">
+                <label for="minmaxfraction"> Start Price </label>
+                <p-inputNumber formControlName="startPrice"  class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"   inputId="minmaxfraction" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="5">
+                </p-inputNumber>
+            </div>
+        
+            <div class="field col-12 md:col-6">
+                    
+            </div>
+        <button [disabled]="!form.valid" pButton type="button" label="Submit Algo" class="p-button-outlined"
+            (click)="startingScaplingAlgo()"
+            ></button>
+            <button [disabled]="!form.valid" pButton type="button" label="Connect Web socket" class="p-button-outlined"
+            (click)="test()"
+            ></button>
+        </div>
+    </div>
+</form>
+</div>
+</div>
+
+    

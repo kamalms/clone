@@ -175,8 +175,15 @@ pRipple (click)="filterbySelectedStrike()"
             pButton
             pRipple
             icon="pi pi-plus"
-            class="p-button-rounded p-button-success"
+            class="p-button-rounded p-button-success mr-2"
             (click)="cloneform(strike)"
+          ></button>
+          <button
+            pButton
+            pRipple
+            icon="pi pi-chart-line"
+            class="p-button-rounded "
+            (click)="getDrawingValues(strike)"
           ></button>
         </div>
       </td>
@@ -509,3 +516,4 @@ pRipple (click)="filterbySelectedStrike()"
 <!-- <button (click)="getBankNiftySpecificStrickeRateTouchline('56133')">strikce valuees by touchline</button> -->
 
 <button (click)="reconnect()">reconnect Web Socket  </button>
+<button (click)="getlayouts()">getlayouts  </button>

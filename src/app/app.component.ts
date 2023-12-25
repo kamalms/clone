@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import { CommonService } from './common.service';
 import { FlatTradeURLs } from './app.constants';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { MatTabGroup } from '@angular/material/tabs';
 const shajs = require('sha.js')
 @Component({
   selector: 'app-root',
@@ -11,6 +12,7 @@ const shajs = require('sha.js')
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
+  @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
   title = 'angular-user-management';
 
   session = this.supabase.session;
@@ -113,6 +115,11 @@ export class AppComponent implements OnInit {
         if (tokenData?.token)
           this.flattradeService.setToken(tokenData)
       })
+  }
+  ngAfterViewInit() {
+    // Set the index of the tab you want to navigate to (index starts from 0)
+    const tabIndexToNavigate = 0; // for example, navigating to the third tab
+    this.tabGroup.selectedIndex = tabIndexToNavigate;
   }
 }
 

@@ -28,6 +28,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ToastModule } from 'primeng/toast';
 import { ReportsComponent } from './reports/reports.component';
 // import { BnlevelsComponent } from './bnlevels/bnlevels.component';
+import {ListboxModule} from 'primeng/listbox';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ChartModule } from 'primeng/chart';
 import { LoginComponent } from './login/login.component';
@@ -36,6 +37,8 @@ import {OverlayPanelModule} from 'primeng/overlaypanel';
 import { CustomDateFormatPipe } from './custom-date-format.pipe';
 import { BackTestDetailComponent } from './back-test-detail/back-test-detail.component';
 import {InputTextareaModule} from 'primeng/inputtextarea';
+import { ScalpingComponent } from './scalping/scalping.component';
+
 const routes: Routes = [
   { path: 'backtestreports', component: ReportsComponent },
   // { path: 'bnlevels', component: BnlevelsComponent },
@@ -53,6 +56,7 @@ const routes: Routes = [
     LoginComponent,
     CustomDateFormatPipe,
     BackTestDetailComponent,
+    ScalpingComponent,
     // BnlevelsComponent,
   ],
   imports: [
@@ -82,7 +86,8 @@ const routes: Routes = [
     DropdownModule,
     ProgressBarModule,
     OverlayPanelModule,
-    InputTextareaModule
+    InputTextareaModule,
+    ListboxModule
   ],
   providers: [],
   bootstrap: [AppComponent],
